@@ -12,245 +12,259 @@
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:#F4F8F7;color:#222;min-height:100vh}
     textarea,input{font-family:'DM Sans',sans-serif}
-    :root{
-      --teal:#00857A;--dark:#1a5c58;--green:#4CAF50;
-      --lteal:#E0F2F1;--bg:#F4F8F7;--star:#FFB300;
-      --red:#EF5350;--gray:#9E9E9E;
-    }
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
-    .overlay-box{background:#fff;border-radius:16px;padding:36px;max-width:500px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-    .overlay-box h2{color:var(--dark);margin-bottom:6px;font-size:20px}
-    .overlay-box .sub{color:#888;font-size:13px;line-height:1.6;margin-bottom:22px}
+    .overlay-box{background:#fff;border-radius:16px;padding:36px;max-width:520px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto}
     .step-row{display:flex;align-items:flex-start;gap:10px;background:#F4F8F7;border-radius:8px;padding:11px 14px;margin-bottom:8px;font-size:12px;color:#555;line-height:1.5}
-    .step-row .num{background:var(--dark);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px}
-    .step-row a{color:var(--teal);font-weight:700}
-    .sep{text-align:center;color:#bbb;font-size:12px;margin:14px 0 8px}
+    .step-row .num{background:#1a5c58;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;margin-top:1px}
+    .step-row a{color:#00857A;font-weight:700}
     .fld{margin-bottom:14px}
-    .fld label{display:block;font-weight:700;font-size:12px;color:var(--dark);margin-bottom:5px}
+    .fld label{display:block;font-weight:700;font-size:12px;color:#1a5c58;margin-bottom:5px}
     .fld input{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;transition:border .2s}
-    .fld input:focus{border-color:var(--teal)}
-    .btn-primary{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-top:4px;transition:background .2s}
-    .btn-primary:hover{background:var(--dark)}
-    .btn-primary:disabled{background:#ccc;cursor:not-allowed}
-    .err{color:var(--red);font-size:12px;margin-top:8px;text-align:center}
+    .fld input:focus{border-color:#00857A}
+    .btn-g{background:#00857A;color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;width:100%;transition:background .2s}
+    .btn-g:hover{background:#1a5c58}
+    .btn-g:disabled{background:#ccc;cursor:not-allowed}
+    .btn-d{background:#1a5c58;color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-top:8px}
+    .err{color:#EF5350;font-size:12px;margin-top:10px;text-align:center}
+    .share-box{background:#E0F2F1;border:2px solid #00857A;border-radius:10px;padding:16px;margin-top:16px}
+    .share-url{font-size:11px;background:#fff;border-radius:6px;padding:10px;word-break:break-all;color:#333;font-family:monospace;border:1px solid #B2DFDB;margin:8px 0;max-height:80px;overflow-y:auto}
+    .copy-btn{background:#00857A;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%}
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useRef, useCallback, useMemo, useEffect } = React;
+const { useState, useRef, useCallback, useMemo } = React;
 
-// ── Constants ─────────────────────────────────────────────────────────────
-const NW=144, NH=56;
-const NODES0=[
-  {id:'n1',label:'Projekt',              x:22, y:200,t:'proj'},
-  {id:'n2',label:'Räuml. Analyse\n(EWS Setup)',  x:198,y:82, t:'ews'},
-  {id:'n3',label:'EWS Parameter',         x:374,y:82, t:'ews'},
-  {id:'n4',label:'EWS Sizing &\nSimulation',x:555,y:82, t:'ews'},
-  {id:'n5',label:'EWS Wirtschaft-\nlichkeit',x:735,y:82, t:'ews'},
-  {id:'n6',label:'Räuml. Analyse\n(GWHP)',  x:198,y:320,t:'gwhp'},
-  {id:'n7',label:'GWHP\nDimensionierung', x:374,y:320,t:'gwhp'},
-  {id:'n8',label:'Bericht\n(Word / PDF)',  x:555,y:320,t:'rep'},
+// ── URL-hash config ───────────────────────────────────────────────────────
+// Credentials live in the URL hash — never sent to any server.
+// Attendees receive a pre-configured URL; setup only shows when hash is absent.
+
+function parseCfg() {
+  try {
+    const p = new URLSearchParams(window.location.hash.slice(1));
+    const raw = p.get('cfg');
+    if (!raw) return null;
+    const [key, bin] = atob(raw).split('|');
+    return key && bin ? {key, bin} : null;
+  } catch { return null; }
+}
+
+function buildShareUrl(key, bin) {
+  const base = window.location.href.split('#')[0];
+  return base + '#cfg=' + btoa(key + '|' + bin);
+}
+
+// ── JSONBin API ───────────────────────────────────────────────────────────
+function makeApi(key, bin) {
+  const url  = 'https://api.jsonbin.io/v3/b/' + bin;
+  const hdrs = {'X-Master-Key': key, 'Content-Type': 'application/json'};
+  return {
+    async load() {
+      const r = await fetch(url + '/latest', {headers: {'X-Master-Key': key}});
+      if (!r.ok) throw new Error('Laden fehlgeschlagen (' + r.status + ')');
+      return (await r.json()).record?.responses || [];
+    },
+    async append(entry) {
+      const arr = await this.load();
+      arr.push({...entry, id: Date.now(), ts: new Date().toISOString()});
+      const r = await fetch(url, {method:'PUT', headers:hdrs, body:JSON.stringify({responses:arr})});
+      if (!r.ok) throw new Error('Speichern fehlgeschlagen (' + r.status + ')');
+    },
+    async clear() {
+      const r = await fetch(url, {method:'PUT', headers:hdrs, body:JSON.stringify({responses:[]})});
+      if (!r.ok) throw new Error('Löschen fehlgeschlagen');
+    }
+  };
+}
+
+async function createBin(apiKey) {
+  const r = await fetch('https://api.jsonbin.io/v3/b', {
+    method: 'POST',
+    headers: {'X-Master-Key': apiKey, 'Content-Type': 'application/json', 'X-Bin-Name': 'geoENERGIE Feedback'},
+    body: JSON.stringify({responses: []})
+  });
+  if (!r.ok) throw new Error('Bin konnte nicht erstellt werden (' + r.status + ') — API Key prüfen');
+  return (await r.json()).metadata.id;
+}
+
+// ── Workflow data ─────────────────────────────────────────────────────────
+const NW = 144, NH = 56;
+const NODES0 = [
+  {id:'n1', label:'Projekt',               x:22,  y:200, t:'proj'},
+  {id:'n2', label:'Räuml. Analyse\n(EWS Setup)',   x:198, y:82,  t:'ews'},
+  {id:'n3', label:'EWS Parameter',          x:374, y:82,  t:'ews'},
+  {id:'n4', label:'EWS Sizing &\nSimulation', x:555, y:82,  t:'ews'},
+  {id:'n5', label:'EWS Wirtschaft-\nlichkeit', x:735, y:82,  t:'ews'},
+  {id:'n6', label:'Räuml. Analyse\n(GWHP)',    x:198, y:320, t:'gwhp'},
+  {id:'n7', label:'GWHP\nDimensionierung',   x:374, y:320, t:'gwhp'},
+  {id:'n8', label:'Bericht\n(Word / PDF)',    x:555, y:320, t:'rep'},
 ];
-const EDGES0=[
+const EDGES0 = [
   {id:'e1',f:'n1',t:'n2'},{id:'e2',f:'n2',t:'n3'},{id:'e3',f:'n3',t:'n4'},
   {id:'e4',f:'n4',t:'n5'},{id:'e5',f:'n1',t:'n6'},{id:'e6',f:'n6',t:'n7'},
   {id:'e7',f:'n7',t:'n8'},{id:'e8',f:'n4',t:'n8'},{id:'e9',f:'n5',t:'n8'},
 ];
-const NCLR={
+const NCLR = {
   proj:{bg:'#E3F2FD',txt:'#1565C0',bd:'#90CAF9'},
   ews: {bg:'#E0F2F1',txt:'#00695C',bd:'#80CBC4'},
   gwhp:{bg:'#E8F5E9',txt:'#2E7D32',bd:'#A5D6A7'},
   rep: {bg:'#FFF3E0',txt:'#E65100',bd:'#FFCC80'},
   cust:{bg:'#F3E5F5',txt:'#6A1B9A',bd:'#CE93D8'},
 };
-const STAR_LBL=['','Unzureichend','Verbesserungsbedürftig','Befriedigend','Gut','Ausgezeichnet'];
-const STORE_KEY='ge_jbin';
+const STAR_LBL = ['','Unzureichend','Verbesserungsbedürftig','Befriedigend','Gut','Ausgezeichnet'];
 
-// ── JSONBin Storage ────────────────────────────────────────────────────────
-function getCfg(){
-  try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}');}catch{return {};}
-}
-function setCfg(o){localStorage.setItem(STORE_KEY,JSON.stringify({...getCfg(),...o}));}
-
-async function jbinLoad(){
-  const {key,bin}=getCfg();
-  if(!key||!bin) return [];
-  const r=await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
-  if(!r.ok) throw new Error('Laden fehlgeschlagen ('+r.status+')');
-  const d=await r.json();
-  return d.record?.responses||[];
-}
-
-async function jbinSave(responses){
-  const {key,bin}=getCfg();
-  const r=await fetch(`https://api.jsonbin.io/v3/b/${bin}`,{
-    method:'PUT',
-    headers:{'X-Master-Key':key,'Content-Type':'application/json'},
-    body:JSON.stringify({responses})
-  });
-  if(!r.ok) throw new Error('Speichern fehlgeschlagen ('+r.status+')');
-}
-
-async function jbinAppend(entry){
-  const arr=await jbinLoad();
-  arr.push({...entry,id:Date.now(),ts:new Date().toISOString()});
-  await jbinSave(arr);
-}
-
-async function jbinCreateBin(apiKey){
-  const r=await fetch('https://api.jsonbin.io/v3/b',{
-    method:'POST',
-    headers:{'X-Master-Key':apiKey,'Content-Type':'application/json','X-Bin-Name':'geoENERGIE Feedback'},
-    body:JSON.stringify({responses:[]})
-  });
-  if(!r.ok) throw new Error('Bin konnte nicht erstellt werden ('+r.status+') — API Key prüfen');
-  const d=await r.json();
-  return d.metadata.id;
-}
-
-// ── Geometry ──────────────────────────────────────────────────────────────
 function borderPt(cx,cy,ox,oy){
-  const dx=ox-cx,dy=oy-cy;
+  const dx=ox-cx, dy=oy-cy;
   if(!dx&&!dy) return {x:cx,y:cy};
-  const sx=dx?(NW/2)/Math.abs(dx):Infinity;
-  const sy=dy?(NH/2)/Math.abs(dy):Infinity;
+  const sx=dx?(NW/2)/Math.abs(dx):Infinity, sy=dy?(NH/2)/Math.abs(dy):Infinity;
   const s=Math.min(sx,sy);
-  return {x:cx+dx*s,y:cy+dy*s};
+  return {x:cx+dx*s, y:cy+dy*s};
 }
 
-// ── Setup Screen ──────────────────────────────────────────────────────────
-function SetupScreen({onDone}){
-  const [apiKey,setApiKey]=useState('');
-  const [binId,setBinId]=useState('');
-  const [creating,setCreating]=useState(false);
-  const [err,setErr]=useState('');
+// ── Setup (organiser only) ────────────────────────────────────────────────
+function SetupScreen({onDone}) {
+  const [apiKey,  setApiKey]  = useState('');
+  const [binId,   setBinId]   = useState('');
+  const [busy,    setBusy]    = useState(false);
+  const [err,     setErr]     = useState('');
+  const [shareUrl,setShareUrl]= useState('');
+  const [copied,  setCopied]  = useState(false);
 
-  const createBin=async()=>{
+  const finalize = (k,b) => setShareUrl(buildShareUrl(k,b));
+
+  const doCreate = async () => {
     if(!apiKey.trim()){setErr('Bitte API Key eingeben.');return;}
-    setCreating(true); setErr('');
-    try{
-      const id=await jbinCreateBin(apiKey.trim());
-      setCfg({key:apiKey.trim(),bin:id});
-      onDone();
-    }catch(e){setErr(e.message);}
-    finally{setCreating(false);}
+    setBusy(true); setErr('');
+    try { finalize(apiKey.trim(), await createBin(apiKey.trim())); }
+    catch(e) { setErr(e.message); }
+    finally { setBusy(false); }
   };
 
-  const useExisting=()=>{
+  const doExisting = () => {
     if(!apiKey.trim()||!binId.trim()){setErr('Bitte API Key und Bin ID eingeben.');return;}
-    setCfg({key:apiKey.trim(),bin:binId.trim()});
-    onDone();
+    finalize(apiKey.trim(), binId.trim());
+  };
+
+  const copy = () => {
+    navigator.clipboard.writeText(shareUrl)
+      .then(()=>{setCopied(true); setTimeout(()=>setCopied(false),2000);});
   };
 
   return (
     <div className="overlay">
       <div className="overlay-box">
-        <h2>⚙️ Einrichtung</h2>
-        <p className="sub">
-          Einmalige Konfiguration für die geteilte Datenspeicherung.<br/>
-          Alle Antworten der Teilnehmer landen in einem <strong>JSONBin</strong> (kostenlos).
+        <h2 style={{color:'#1a5c58',marginBottom:6,fontSize:20}}>⚙️ Einmalige Einrichtung</h2>
+        <p style={{color:'#888',fontSize:13,lineHeight:1.6,marginBottom:20}}>
+          Diese Seite sehen <strong>nur Sie</strong>. Teilnehmer erhalten einen direkten Link ohne jeden Setup-Schritt.
         </p>
-
         <div className="step-row"><div className="num">1</div>
-          <div>Account erstellen auf <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> (kostenlos, keine Kreditkarte)</div>
+          <div>Kostenloser Account auf <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → <strong>API Keys</strong> → <strong>+ CREATE KEY</strong> → kopieren</div>
         </div>
         <div className="step-row"><div className="num">2</div>
-          <div>Nach Login: <strong>API Keys</strong> → <strong>+ CREATE KEY</strong> → kopieren</div>
+          <div>API Key unten eingeben → <strong>„Neuen Bin erstellen"</strong> klicken</div>
         </div>
         <div className="step-row"><div className="num">3</div>
-          <div>API Key unten eingeben → <strong>„Bin automatisch erstellen"</strong> klicken</div>
+          <div>Generierte URL → QR Code erstellen (z.B. qr-code-generator.com) → auf letzte Folie</div>
         </div>
 
-        <div className="fld" style={{marginTop:20}}>
-          <label>API Key (Master Key von jsonbin.io)</label>
-          <input type="text" value={apiKey} onChange={e=>setApiKey(e.target.value)}
-            placeholder="$2a$10$..." style={{fontFamily:'monospace',fontSize:12}}/>
-        </div>
-
-        <button className="btn-primary" onClick={createBin} disabled={creating}>
-          {creating?'⏳ Erstelle Bin...':'🚀 Bin automatisch erstellen & loslegen'}
-        </button>
-
-        <div className="sep">— oder bestehenden Bin verwenden —</div>
-
-        <div className="fld">
-          <label>Bin ID (aus vorheriger Einrichtung)</label>
-          <input type="text" value={binId} onChange={e=>setBinId(e.target.value)} placeholder="67a3b2c4..."/>
-        </div>
-        <button className="btn-primary" onClick={useExisting} style={{marginTop:0,background:'#1a5c58'}}>
-          Bestehenden Bin verwenden
-        </button>
-
-        {err&&<div className="err">⚠️ {err}</div>}
+        {!shareUrl ? (<>
+          <div className="fld" style={{marginTop:20}}>
+            <label>Master API Key von jsonbin.io</label>
+            <input type="text" value={apiKey} onChange={e=>setApiKey(e.target.value)}
+              placeholder="$2a$10$..." style={{fontFamily:'monospace',fontSize:12}}/>
+          </div>
+          <button className="btn-g" onClick={doCreate} disabled={busy}>
+            {busy?'⏳ Erstelle Bin...':'🚀 Neuen Bin erstellen & URL generieren'}
+          </button>
+          <div style={{textAlign:'center',color:'#bbb',fontSize:12,margin:'12px 0 8px'}}>— oder bestehenden Bin verwenden —</div>
+          <div className="fld">
+            <label>Bestehende Bin ID</label>
+            <input type="text" value={binId} onChange={e=>setBinId(e.target.value)} placeholder="67a3b2c4..."/>
+          </div>
+          <button className="btn-d" onClick={doExisting}>URL für bestehenden Bin generieren</button>
+        </>) : (<>
+          <div className="share-box">
+            <div style={{fontSize:12,fontWeight:700,color:'#1a5c58',marginBottom:4}}>✅ Fertig! Diese URL kommt auf den QR Code:</div>
+            <div className="share-url">{shareUrl}</div>
+            <button className="copy-btn" onClick={copy} style={{background:copied?'#4CAF50':'#00857A'}}>
+              {copied?'✓ Kopiert!':'📋 URL kopieren'}
+            </button>
+            <button onClick={()=>{ window.location.href = shareUrl; }}
+              style={{background:'#1a5c58',color:'#fff',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer',width:'100%',marginTop:8}}>
+              → App öffnen
+            </button>
+            <div style={{fontSize:11,color:'#888',marginTop:10,lineHeight:1.5}}>
+              💡 Credentials sind im URL-Hash kodiert (#cfg=...) — werden nicht an Server übertragen.
+            </div>
+          </div>
+        </>)}
+        {err && <div className="err">⚠️ {err}</div>}
       </div>
     </div>
   );
 }
 
 // ── Stars ─────────────────────────────────────────────────────────────────
-function Stars({val,set}){
-  const [h,setH]=useState(0);
-  return(
+function Stars({val, set}) {
+  const [h, setH] = useState(0);
+  return (
     <div>
       <div style={{display:'flex',gap:6,fontSize:46,cursor:'pointer',userSelect:'none'}}>
         {[1,2,3,4,5].map(s=>(
           <span key={s} style={{color:s<=(h||val)?'#FFB300':'#e0e0e0',transition:'color .12s'}}
-            onMouseEnter={()=>setH(s)} onMouseLeave={()=>setH(0)}
-            onClick={()=>set(s)}>★</span>
+            onMouseEnter={()=>setH(s)} onMouseLeave={()=>setH(0)} onClick={()=>set(s)}>★</span>
         ))}
       </div>
-      {(h||val)>0&&<div style={{fontSize:13,color:'#00857A',fontWeight:700,marginTop:5}}>{STAR_LBL[h||val]}</div>}
+      {(h||val)>0 && <div style={{fontSize:13,color:'#00857A',fontWeight:700,marginTop:5}}>{STAR_LBL[h||val]}</div>}
     </div>
   );
 }
 
 // ── Workflow Editor ───────────────────────────────────────────────────────
-function Editor({nodes,setNodes,edges,setEdges}){
-  const svgRef=useRef(null);
-  const [drag,setDrag]=useState(null);
-  const [sel,setSel]=useState(null);
-  const [selE,setSelE]=useState(null);
-  const [conn,setConn]=useState(null);
-  const nm=useMemo(()=>Object.fromEntries(nodes.map(n=>[n.id,n])),[nodes]);
+function Editor({nodes, setNodes, edges, setEdges}) {
+  const svgRef = useRef(null);
+  const [drag, setDrag] = useState(null);
+  const [sel,  setSel]  = useState(null);
+  const [selE, setSelE] = useState(null);
+  const [conn, setConn] = useState(null);
+  const nm = useMemo(()=>Object.fromEntries(nodes.map(n=>[n.id,n])),[nodes]);
 
-  const svgXY=(cx,cy)=>{const r=svgRef.current.getBoundingClientRect();return{x:cx-r.left,y:cy-r.top};};
+  const svgXY = (cx,cy) => { const r=svgRef.current.getBoundingClientRect(); return {x:cx-r.left,y:cy-r.top}; };
 
-  const edgePts=(edge)=>{
-    const a=nm[edge.f],b=nm[edge.t]; if(!a||!b) return null;
-    const ac={x:a.x+NW/2,y:a.y+NH/2},bc={x:b.x+NW/2,y:b.y+NH/2};
-    return{p1:borderPt(ac.x,ac.y,bc.x,bc.y),p2:borderPt(bc.x,bc.y,ac.x,ac.y)};
+  const ePts = (e) => {
+    const a=nm[e.f], b=nm[e.t]; if(!a||!b) return null;
+    const ac={x:a.x+NW/2,y:a.y+NH/2}, bc={x:b.x+NW/2,y:b.y+NH/2};
+    return {p1:borderPt(ac.x,ac.y,bc.x,bc.y), p2:borderPt(bc.x,bc.y,ac.x,ac.y)};
   };
 
-  const onMove=useCallback((cx,cy)=>{
+  const onMove = useCallback((cx,cy) => {
     if(!drag) return;
-    const{x,y}=svgXY(cx,cy);
+    const {x,y}=svgXY(cx,cy);
     setNodes(ns=>ns.map(n=>n.id===drag.id?{...n,x:Math.max(0,Math.min(890-NW,x-drag.ox)),y:Math.max(0,Math.min(390-NH,y-drag.oy))}:n));
   },[drag,setNodes]);
 
-  const onNodeDown=(cx,cy,id,sp)=>{
+  const onND = (cx,cy,id,sp) => {
     if(sp) sp();
     if(conn){
-      if(conn!==id&&!edges.find(e=>e.f===conn&&e.t===id))
+      if(conn!==id && !edges.find(e=>e.f===conn&&e.t===id))
         setEdges(es=>[...es,{id:'ec'+Date.now(),f:conn,t:id}]);
       setConn(null); return;
     }
-    const{x,y}=svgXY(cx,cy);
+    const {x,y}=svgXY(cx,cy);
     setDrag({id,ox:x-nm[id].x,oy:y-nm[id].y});
     setSel(id); setSelE(null);
   };
 
-  const bS=(bg,dis=false)=>({background:dis?'#eee':bg,color:dis?'#bbb':'#fff',
-    border:'none',borderRadius:6,padding:'5px 11px',fontSize:11,fontWeight:700,cursor:dis?'not-allowed':'pointer'});
+  const bS = (bg,d=false) => ({background:d?'#eee':bg,color:d?'#bbb':'#fff',border:'none',borderRadius:6,padding:'5px 11px',fontSize:11,fontWeight:700,cursor:d?'not-allowed':'pointer'});
+  const selN = sel ? nm[sel] : null;
+  const hint = conn?'🔗 Ziel-Node anklicken':sel?`✓ "${selN?.label.replace('\n',' ')}" ausgewählt`:selE?'→ Verbindung ausgewählt':'🖱 Ziehen=verschieben · Klick=auswählen';
 
-  const selN=sel?nm[sel]:null;
-  const hint=conn?'🔗 Ziel-Node anklicken':sel?`✓ "${selN?.label.replace('\n',' ')}" ausgewählt`:selE?'→ Verbindung ausgewählt':'🖱 Ziehen=verschieben · Klick=auswählen';
-
-  return(
+  return (
     <div>
       <div style={{display:'flex',gap:5,marginBottom:8,flexWrap:'wrap',alignItems:'center'}}>
         <span style={{flex:1,fontSize:11,color:conn?'#E65100':'#aaa',fontStyle:conn?'normal':'italic'}}>{hint}</span>
-        <button onClick={()=>{const l=prompt('Name:','Neuer Schritt');if(l) setNodes(ns=>[...ns,{id:'c'+Date.now(),label:l,x:180+Math.random()*400,y:175+Math.random()*100,t:'cust'}]);}} style={bS('#00857A')}>＋ Node</button>
+        <button onClick={()=>{const l=prompt('Name:','Neuer Schritt');if(l)setNodes(ns=>[...ns,{id:'c'+Date.now(),label:l,x:180+Math.random()*400,y:175+Math.random()*100,t:'cust'}]);}} style={bS('#00857A')}>＋ Node</button>
         <button onClick={()=>sel&&setConn(sel)} disabled={!sel} style={bS('#1a5c58',!sel)}>→ Verbinden</button>
         <button onClick={()=>{if(!sel)return;const nl=prompt('Neuer Name:',nm[sel]?.label.replace(/\n/g,' '));if(nl)setNodes(ns=>ns.map(n=>n.id===sel?{...n,label:nl}:n));}} disabled={!sel} style={bS('#555',!sel)}>✏ Umbenennen</button>
         <button onClick={()=>{if(sel){setNodes(ns=>ns.filter(n=>n.id!==sel));setEdges(es=>es.filter(e=>e.f!==sel&&e.t!==sel));setSel(null);}else if(selE){setEdges(es=>es.filter(e=>e.id!==selE));setSelE(null);}}} disabled={!sel&&!selE} style={bS('#EF5350',!sel&&!selE)}>✕ Löschen</button>
@@ -266,25 +280,25 @@ function Editor({nodes,setNodes,edges,setEdges}){
           onClick={e=>{if(e.target===svgRef.current){setSel(null);setSelE(null);setConn(null);}}}
         >
           <defs>
-            <marker id="arr"  markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0 0,9 3,0 6" fill="#00857A"/></marker>
-            <marker id="arrs" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0 0,9 3,0 6" fill="#EF5350"/></marker>
-            <marker id="arrc" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0 0,9 3,0 6" fill="#FFB300"/></marker>
+            <marker id="a"  markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0 0,9 3,0 6" fill="#00857A"/></marker>
+            <marker id="as" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0 0,9 3,0 6" fill="#EF5350"/></marker>
+            <marker id="ac" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0 0,9 3,0 6" fill="#FFB300"/></marker>
           </defs>
           {edges.map(edge=>{
-            const p=edgePts(edge); if(!p) return null;
-            const iS=edge.id===selE,fC=edge.f===conn;
+            const p=ePts(edge); if(!p) return null;
+            const iS=edge.id===selE, fC=edge.f===conn;
             return <line key={edge.id} x1={p.p1.x} y1={p.p1.y} x2={p.p2.x} y2={p.p2.y}
               stroke={iS?'#EF5350':fC?'#FFB300':'#00857A'} strokeWidth={iS||fC?2.5:2}
-              strokeDasharray={iS?'5,3':'none'} markerEnd={iS?'url(#arrs)':fC?'url(#arrc)':'url(#arr)'}
+              strokeDasharray={iS?'5,3':'none'} markerEnd={iS?'url(#as)':fC?'url(#ac)':'url(#a)'}
               style={{cursor:'pointer'}} onClick={e=>{e.stopPropagation();setSelE(edge.id);setSel(null);setConn(null);}}/>;
           })}
           {nodes.map(node=>{
-            const nc=NCLR[node.t]||NCLR.cust,iS=node.id===sel,iC=node.id===conn;
+            const nc=NCLR[node.t]||NCLR.cust, iS=node.id===sel, iC=node.id===conn;
             const lines=node.label.split('\n');
             return <g key={node.id} transform={`translate(${node.x},${node.y})`}
               style={{cursor:drag?.id===node.id?'grabbing':'grab'}}
-              onMouseDown={e=>onNodeDown(e.clientX,e.clientY,node.id,()=>e.stopPropagation())}
-              onTouchStart={e=>{const t=e.touches[0];onNodeDown(t.clientX,t.clientY,node.id,null);}}>
+              onMouseDown={e=>onND(e.clientX,e.clientY,node.id,()=>e.stopPropagation())}
+              onTouchStart={e=>{const t=e.touches[0];onND(t.clientX,t.clientY,node.id,null);}}>
               <rect width={NW} height={NH} rx={7} fill={iC?'#FFF9C4':nc.bg}
                 stroke={iS?'#EF5350':iC?'#FFB300':nc.bd} strokeWidth={iS||iC?2.5:1.5}
                 filter={iS?'drop-shadow(0 3px 8px rgba(0,0,0,.18))':'none'}/>
@@ -319,9 +333,9 @@ function Bar({label,count,total,color}){
 }
 
 // ── Results ───────────────────────────────────────────────────────────────
-function Results({data,onClear,onReload}){
-  const [loading,setLoading]=useState(false);
-  const reload=async()=>{setLoading(true);await onReload();setLoading(false);};
+function Results({data, onClear, onReload}) {
+  const [busy,setBusy]=useState(false);
+  const reload=async()=>{setBusy(true);await onReload();setBusy(false);};
 
   if(!data.length) return(
     <div style={{textAlign:'center',padding:60,color:'#bbb'}}>
@@ -334,36 +348,26 @@ function Results({data,onClear,onReload}){
   const ratings=data.map(r=>r.rating).filter(Boolean);
   const avg=ratings.reduce((a,b)=>a+b,0)/ratings.length;
   const dist=[5,4,3,2,1].map(s=>({s,n:ratings.filter(r=>r===s).length,c:['#00857A','#66BB6A','#FFB300','#FF7043','#EF5350'][5-s]}));
-
   const origIds=new Set(NODES0.map(n=>n.id));
-  const deletions={},additions=[];
+  const deletions={}, additions=[];
   data.forEach(r=>{
     if(!r.nodes) return;
     const rIds=new Set(r.nodes.map(n=>n.id));
     origIds.forEach(id=>{if(!rIds.has(id)) deletions[id]=(deletions[id]||0)+1;});
     r.nodes.filter(n=>!origIds.has(n.id)).forEach(n=>additions.push(n.label));
   });
-
   const comments=data.filter(r=>r.comment).map(r=>r.comment);
   const recs=data.filter(r=>r.recs).map(r=>({name:r.name,text:r.recs}));
-
+  const oL=id=>NODES0.find(n=>n.id===id)?.label.replace('\n',' ')||id;
   const card={background:'#fff',borderRadius:10,padding:20,marginBottom:14,boxShadow:'0 2px 8px rgba(0,0,0,.07)'};
   const h3={margin:'0 0 14px',color:'#1a5c58',fontSize:15,fontWeight:700};
-  const origLbl=id=>NODES0.find(n=>n.id===id)?.label.replace('\n',' ')||id;
 
   return(
     <div>
-      <div style={{display:'flex',justifyContent:'flex-end',marginBottom:10,gap:8}}>
-        <button onClick={reload} disabled={loading}
-          style={{background:'#1a5c58',color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',cursor:loading?'wait':'pointer',fontSize:12,fontWeight:700}}>
-          {loading?'⏳ Lade...':'↻ Aktualisieren'}
-        </button>
-        <button onClick={()=>{if(window.confirm('Alle Daten in JSONBin löschen?')) onClear();}}
-          style={{background:'#EF5350',color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-          🗑️ Alle löschen
-        </button>
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:10}}>
+        <button onClick={reload} disabled={busy} style={{background:'#1a5c58',color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',cursor:busy?'wait':'pointer',fontSize:12,fontWeight:700}}>{busy?'⏳':'↻'} Aktualisieren</button>
+        <button onClick={()=>{if(window.confirm('Alle Daten löschen?')) onClear();}} style={{background:'#EF5350',color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>🗑️ Alle löschen</button>
       </div>
-
       <div style={{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap'}}>
         {[['👥',data.length,'Antworten'],['⭐',avg.toFixed(1)+'★','Ø Bewertung'],['➕',additions.length,'Neue Schritte'],['💬',recs.length,'Empfehlungen']].map(([i,v,l])=>(
           <div key={l} style={{...card,flex:'1 1 120px',textAlign:'center',padding:'14px 8px',marginBottom:0}}>
@@ -373,24 +377,21 @@ function Results({data,onClear,onReload}){
           </div>
         ))}
       </div>
-
       <div style={card}>
         <h3 style={h3}>⭐ Bewertungsverteilung</h3>
         {dist.map(({s,n,c})=><Bar key={s} label={s+'★'} count={n} total={data.length} color={c}/>)}
       </div>
-
       {Object.keys(deletions).length>0&&(
         <div style={card}>
           <h3 style={h3}>🗑️ Häufig entfernte Schritte</h3>
           {Object.entries(deletions).sort((a,b)=>b[1]-a[1]).map(([id,n])=>(
             <div key={id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:'1px solid #f5f5f5'}}>
-              <span style={{fontSize:13}}>{origLbl(id)}</span>
+              <span style={{fontSize:13}}>{oL(id)}</span>
               <span style={{background:'#FFEBEE',color:'#C62828',borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>{n}× · {Math.round(n/data.length*100)}%</span>
             </div>
           ))}
         </div>
       )}
-
       {additions.length>0&&(
         <div style={card}>
           <h3 style={h3}>➕ Vorgeschlagene neue Schritte</h3>
@@ -399,7 +400,6 @@ function Results({data,onClear,onReload}){
           </div>
         </div>
       )}
-
       {recs.length>0&&(
         <div style={card}>
           <h3 style={h3}>💬 Empfehlungen ({recs.length})</h3>
@@ -411,7 +411,6 @@ function Results({data,onClear,onReload}){
           ))}
         </div>
       )}
-
       {comments.length>0&&(
         <div style={card}>
           <h3 style={h3}>🗨️ Bewertungskommentare</h3>
@@ -424,161 +423,114 @@ function Results({data,onClear,onReload}){
   );
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────
-function App(){
-  const [setup, setSetup]=useState(!getCfg().key);
-  const [mode,  setMode]=useState('submit');
-  const [step,  setStep]=useState(1);
-  const [rating,setRating]=useState(0);
-  const [comment,setComment]=useState('');
-  const [nodes, setNodes]=useState(()=>NODES0.map(n=>({...n})));
-  const [edges, setEdges]=useState(()=>EDGES0.map(e=>({...e})));
-  const [recs,  setRecs]=useState('');
-  const [name,  setName]=useState('');
-  const [data,  setData]=useState([]);
-  const [saving,setSaving]=useState(false);
-  const [saveErr,setSaveErr]=useState('');
+// ── App ───────────────────────────────────────────────────────────────────
+function App() {
+  const cfg = parseCfg();
+  const api = cfg ? makeApi(cfg.key, cfg.bin) : null;
 
-  const loadResults=async()=>{ try{setData(await jbinLoad());}catch(e){alert('Fehler: '+e.message);} };
+  const [showSetup,setShowSetup] = useState(!cfg);
+  const [mode,  setMode]   = useState('submit');
+  const [step,  setStep]   = useState(1);
+  const [rating,setRating] = useState(0);
+  const [comment,setCmt]   = useState('');
+  const [nodes, setNodes]  = useState(()=>NODES0.map(n=>({...n})));
+  const [edges, setEdges]  = useState(()=>EDGES0.map(e=>({...e})));
+  const [recs,  setRecs]   = useState('');
+  const [name,  setName]   = useState('');
+  const [data,  setData]   = useState([]);
+  const [saving,setSaving] = useState(false);
+  const [saveErr,setSaveErr]= useState('');
 
-  const goResults=async()=>{setMode('results');await loadResults();};
-
-  const submit=async()=>{
+  const loadR  = async () => { try{setData(await api.load());}catch(e){alert('Fehler: '+e.message);} };
+  const goRes  = async () => { setMode('results'); await loadR(); };
+  const submit = async () => {
     setSaving(true); setSaveErr('');
-    try{
-      await jbinAppend({rating,comment,nodes,edges,recs,name});
-      setStep('done');
-    }catch(e){ setSaveErr('Fehler beim Speichern: '+e.message); }
+    try{ await api.append({rating,comment,nodes,edges,recs,name}); setStep('done'); }
+    catch(e){ setSaveErr('Fehler: '+e.message); }
     finally{ setSaving(false); }
   };
+  const clearAll = async () => { try{await api.clear();setData([]);}catch(e){alert(e.message);} };
 
-  const clearAll=async()=>{ try{await jbinSave([]);setData([]);}catch(e){alert(e.message);} };
+  const inp = {border:'1.5px solid #e0e0e0',borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none'};
 
-  const inp={border:'1.5px solid #e0e0e0',borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',transition:'border .2s'};
-
-  if(setup) return <SetupScreen onDone={()=>setSetup(false)}/>;
+  if(showSetup) return <SetupScreen onDone={()=>setShowSetup(false)}/>;
 
   return(
     <div style={{fontFamily:"'DM Sans',sans-serif",background:'#F4F8F7',minHeight:'100vh'}}>
-
-      {/* Header */}
       <div style={{background:'#1a5c58',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 12px rgba(0,0,0,.25)'}}>
         <div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff',letterSpacing:.3}}>
-            geo<span style={{color:'#4DB6AC'}}>ENERGIE</span> Tool
-          </div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff',letterSpacing:.3}}>geo<span style={{color:'#4DB6AC'}}>ENERGIE</span> Tool</div>
           <div style={{fontSize:11,color:'rgba(255,255,255,.6)',marginTop:1}}>Feedback · geoENERGIE Tag 2026</div>
         </div>
-        <div style={{display:'flex',gap:6}}>
-          {[['submit','📝 Feedback'],['results','📊 Ergebnisse']].map(([m,lbl])=>(
-            <button key={m} onClick={m==='results'?goResults:()=>setMode('submit')}
-              style={{background:mode===m?'rgba(255,255,255,.2)':'transparent',color:'#fff',border:'1px solid rgba(255,255,255,.3)',borderRadius:6,padding:'6px 13px',cursor:'pointer',fontSize:12,fontWeight:mode===m?700:400}}>
-              {lbl}
-            </button>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          {[['submit','📝 Feedback'],['results','📊 Ergebnisse']].map(([m,l])=>(
+            <button key={m} onClick={m==='results'?goRes:()=>setMode('submit')}
+              style={{background:mode===m?'rgba(255,255,255,.2)':'transparent',color:'#fff',border:'1px solid rgba(255,255,255,.3)',borderRadius:6,padding:'6px 13px',cursor:'pointer',fontSize:12,fontWeight:mode===m?700:400}}>{l}</button>
           ))}
-          <button onClick={()=>{localStorage.removeItem(STORE_KEY);setSetup(true);}}
-            title="Konfiguration zurücksetzen"
-            style={{background:'transparent',color:'rgba(255,255,255,.4)',border:'none',cursor:'pointer',fontSize:16,padding:'0 4px'}}>⚙</button>
+          <button onClick={()=>setShowSetup(true)} title="Einrichtung"
+            style={{background:'transparent',color:'rgba(255,255,255,.35)',border:'none',cursor:'pointer',fontSize:18,lineHeight:1,paddingLeft:4}}>⚙</button>
         </div>
       </div>
 
       <div style={{maxWidth:980,margin:'0 auto',padding:'20px 16px'}}>
-
-        {/* SUBMIT */}
-        {mode==='submit'&&(
-          <>
-            {step!=='done'&&(
-              <div style={{display:'flex',alignItems:'center',marginBottom:18}}>
-                {[1,2,3].map((s,i)=>(
-                  <React.Fragment key={s}>
-                    <div style={{width:30,height:30,borderRadius:'50%',flexShrink:0,
-                      background:s<=step?'#00857A':'#ddd',color:'#fff',
-                      display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700}}>
-                      {s<step?'✓':s}
-                    </div>
-                    {i<2&&<div style={{flex:1,height:3,background:s<step?'#00857A':'#ddd',margin:'0 4px'}}/>}
-                  </React.Fragment>
-                ))}
+        {mode==='submit'&&(<>
+          {step!=='done'&&(
+            <div style={{display:'flex',alignItems:'center',marginBottom:18}}>
+              {[1,2,3].map((s,i)=>(
+                <React.Fragment key={s}>
+                  <div style={{width:30,height:30,borderRadius:'50%',flexShrink:0,background:s<=step?'#00857A':'#ddd',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700}}>{s<step?'✓':s}</div>
+                  {i<2&&<div style={{flex:1,height:3,background:s<step?'#00857A':'#ddd',margin:'0 4px'}}/>}
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+          <div style={{background:'#fff',borderRadius:12,padding:24,boxShadow:'0 2px 12px rgba(0,0,0,.08)'}}>
+            {step===1&&(<>
+              <h2 style={{margin:'0 0 6px',color:'#1a5c58',fontSize:20}}>1. Gesamtbewertung</h2>
+              <p style={{color:'#888',marginBottom:20,fontSize:14}}>Wie bewerten Sie den geoENERGIE Tool insgesamt?</p>
+              <Stars val={rating} set={setRating}/>
+              <div style={{marginTop:20}}>
+                <label style={{display:'block',marginBottom:6,fontWeight:700,fontSize:13,color:'#1a5c58'}}>Kommentar <span style={{color:'#bbb',fontWeight:400}}>(optional)</span></label>
+                <textarea value={comment} onChange={e=>setCmt(e.target.value)} placeholder="Was hat besonders gut gefallen? Was weniger?" style={{...inp,height:90,resize:'vertical'}}/>
+              </div>
+              <div style={{textAlign:'right',marginTop:20}}>
+                <button onClick={()=>setStep(2)} disabled={!rating} style={{background:rating?'#00857A':'#ccc',color:'#fff',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:700,cursor:rating?'pointer':'not-allowed'}}>Weiter →</button>
+              </div>
+            </>)}
+            {step===2&&(<>
+              <h2 style={{margin:'0 0 6px',color:'#1a5c58',fontSize:20}}>2. Workflow-Analyse</h2>
+              <p style={{color:'#888',marginBottom:16,fontSize:14}}>Wie würden Sie den Workflow anpassen? Schritte verschieben, umbenennen, löschen oder neue hinzufügen.</p>
+              <Editor nodes={nodes} setNodes={setNodes} edges={edges} setEdges={setEdges}/>
+              <div style={{display:'flex',justifyContent:'space-between',marginTop:20}}>
+                <button onClick={()=>setStep(1)} style={{background:'#888',color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',cursor:'pointer'}}>← Zurück</button>
+                <button onClick={()=>setStep(3)} style={{background:'#00857A',color:'#fff',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:700,cursor:'pointer'}}>Weiter →</button>
+              </div>
+            </>)}
+            {step===3&&(<>
+              <h2 style={{margin:'0 0 6px',color:'#1a5c58',fontSize:20}}>3. Empfehlungen</h2>
+              <p style={{color:'#888',marginBottom:16,fontSize:14}}>Welche Features oder Verbesserungen würden Sie sich wünschen?</p>
+              <textarea value={recs} onChange={e=>setRecs(e.target.value)} placeholder="z.B. FEFLOW-Integration, mobiler Zugriff, automatischer Bericht..." style={{...inp,height:120,resize:'vertical'}}/>
+              <div style={{marginTop:14}}>
+                <label style={{display:'block',marginBottom:6,fontWeight:700,fontSize:13,color:'#1a5c58'}}>Name / Firma <span style={{color:'#bbb',fontWeight:400}}>(optional)</span></label>
+                <input value={name} onChange={e=>setName(e.target.value)} placeholder="Ihr Name oder Organisation" style={inp}/>
+              </div>
+              {saveErr&&<div style={{color:'#EF5350',fontSize:12,marginTop:10}}>⚠️ {saveErr}</div>}
+              <div style={{display:'flex',justifyContent:'space-between',marginTop:20}}>
+                <button onClick={()=>setStep(2)} style={{background:'#888',color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',cursor:'pointer'}}>← Zurück</button>
+                <button onClick={submit} disabled={saving} style={{background:saving?'#aaa':'#00857A',color:'#fff',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:700,cursor:saving?'wait':'pointer'}}>{saving?'⏳ Speichert...':'✓ Absenden'}</button>
+              </div>
+            </>)}
+            {step==='done'&&(
+              <div style={{textAlign:'center',padding:'44px 20px'}}>
+                <div style={{fontSize:62}}>🌍</div>
+                <h2 style={{color:'#00857A',marginTop:16,fontSize:24}}>Vielen Dank!</h2>
+                <p style={{color:'#888',fontSize:15,marginTop:8}}>Ihr Feedback wurde gespeichert.</p>
+                <div style={{marginTop:28,color:'#1a5c58',fontWeight:700,fontSize:14}}>Erdwärme. Aus einer Hand.</div>
               </div>
             )}
-
-            <div style={{background:'#fff',borderRadius:12,padding:24,boxShadow:'0 2px 12px rgba(0,0,0,.08)'}}>
-              {step===1&&(
-                <>
-                  <h2 style={{margin:'0 0 6px',color:'#1a5c58',fontSize:20}}>1. Gesamtbewertung</h2>
-                  <p style={{color:'#888',marginBottom:20,fontSize:14}}>Wie bewerten Sie den geoENERGIE Tool insgesamt?</p>
-                  <Stars val={rating} set={setRating}/>
-                  <div style={{marginTop:20}}>
-                    <label style={{display:'block',marginBottom:6,fontWeight:700,fontSize:13,color:'#1a5c58'}}>
-                      Kommentar <span style={{color:'#bbb',fontWeight:400}}>(optional)</span>
-                    </label>
-                    <textarea value={comment} onChange={e=>setComment(e.target.value)}
-                      placeholder="Was hat besonders gut gefallen? Was weniger?"
-                      style={{...inp,height:90,resize:'vertical'}}/>
-                  </div>
-                  <div style={{textAlign:'right',marginTop:20}}>
-                    <button onClick={()=>setStep(2)} disabled={!rating}
-                      style={{background:rating?'#00857A':'#ccc',color:'#fff',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:700,cursor:rating?'pointer':'not-allowed'}}>
-                      Weiter →
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {step===2&&(
-                <>
-                  <h2 style={{margin:'0 0 6px',color:'#1a5c58',fontSize:20}}>2. Workflow-Analyse</h2>
-                  <p style={{color:'#888',marginBottom:16,fontSize:14}}>
-                    Wie würden Sie den Workflow anpassen? Schritte verschieben, umbenennen, löschen oder neue hinzufügen.
-                  </p>
-                  <Editor nodes={nodes} setNodes={setNodes} edges={edges} setEdges={setEdges}/>
-                  <div style={{display:'flex',justifyContent:'space-between',marginTop:20}}>
-                    <button onClick={()=>setStep(1)} style={{background:'#888',color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',cursor:'pointer'}}>← Zurück</button>
-                    <button onClick={()=>setStep(3)} style={{background:'#00857A',color:'#fff',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:700,cursor:'pointer'}}>Weiter →</button>
-                  </div>
-                </>
-              )}
-
-              {step===3&&(
-                <>
-                  <h2 style={{margin:'0 0 6px',color:'#1a5c58',fontSize:20}}>3. Empfehlungen</h2>
-                  <p style={{color:'#888',marginBottom:16,fontSize:14}}>Welche Features oder Verbesserungen würden Sie sich wünschen?</p>
-                  <textarea value={recs} onChange={e=>setRecs(e.target.value)}
-                    placeholder="z.B. FEFLOW-Integration, mobiler Zugriff, automatischer Bericht, neue Module..."
-                    style={{...inp,height:120,resize:'vertical'}}/>
-                  <div style={{marginTop:14}}>
-                    <label style={{display:'block',marginBottom:6,fontWeight:700,fontSize:13,color:'#1a5c58'}}>
-                      Name / Firma <span style={{color:'#bbb',fontWeight:400}}>(optional)</span>
-                    </label>
-                    <input value={name} onChange={e=>setName(e.target.value)}
-                      placeholder="Ihr Name oder Organisation" style={inp}/>
-                  </div>
-                  {saveErr&&<div style={{color:'#EF5350',fontSize:12,marginTop:10}}>⚠️ {saveErr}</div>}
-                  <div style={{display:'flex',justifyContent:'space-between',marginTop:20}}>
-                    <button onClick={()=>setStep(2)} style={{background:'#888',color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',cursor:'pointer'}}>← Zurück</button>
-                    <button onClick={submit} disabled={saving}
-                      style={{background:saving?'#aaa':'#00857A',color:'#fff',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:700,cursor:saving?'wait':'pointer'}}>
-                      {saving?'⏳ Speichert...':'✓ Absenden'}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {step==='done'&&(
-                <div style={{textAlign:'center',padding:'44px 20px'}}>
-                  <div style={{fontSize:62}}>🌍</div>
-                  <h2 style={{color:'#00857A',marginTop:16,fontSize:24}}>Vielen Dank!</h2>
-                  <p style={{color:'#888',fontSize:15,marginTop:8}}>Ihr Feedback wurde gespeichert.</p>
-                  <p style={{color:'#bbb',fontSize:13,marginTop:4}}>Es hilft uns, den geoENERGIE Tool weiterzuentwickeln.</p>
-                  <div style={{marginTop:28,color:'#1a5c58',fontWeight:700,fontSize:14}}>Erdwärme. Aus einer Hand.</div>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {/* RESULTS */}
-        {mode==='results'&&<Results data={data} onClear={clearAll} onReload={loadResults}/>}
+          </div>
+        </>)}
+        {mode==='results'&&<Results data={data} onClear={clearAll} onReload={loadR}/>}
       </div>
     </div>
   );
