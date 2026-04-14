@@ -231,13 +231,13 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
           border:'2px solid #B2DFDB',borderRadius:8,background:'#FAFFFE',
           cursor:connSrc?'crosshair':panStart?'grabbing':'default'}}
         onMouseDown={e=>{
-          // only pan when clicking the container itself (not a node/port)
-          if(e.target!==wRef.current)return;
+          // pan when clicking empty canvas (not on a node, port, or button)
+          if(e.target.closest&&(e.target.closest('.wf-node')||e.target.closest('.port')))return;
           e.preventDefault();
           setPanStart({mx:e.clientX,my:e.clientY,px:pan.x,py:pan.y});
         }}
         onTouchStart={e=>{
-          if(e.target!==wRef.current)return;
+          if(e.target.closest&&(e.target.closest('.wf-node')||e.target.closest('.port')))return;
           const t=e.touches[0];
           setPanStart({mx:t.clientX,my:t.clientY,px:pan.x,py:pan.y});
         }}
@@ -481,10 +481,8 @@ function Results({data,onClear,onReload}){
               <defs>
                 <marker id="dfa" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={D}/></marker>
                 <marker id="dfag" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={G}/></marker>
-                <marker id="dfab" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={D}/></marker>
-                <marker id="dfabg" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={G}/></marker>
               </defs>
-              {ce.map(e=>{const fn=nm2[e.from]?{...nm2[e.from],...nc(nm2[e.from])}:null,tn=nm2[e.to]?{...nm2[e.to],...nc(nm2[e.to])}:null,d=ePath(fn,tn);if(!d)return null;const gr=e.sty==='sg'||e.sty==='bg',bl=e.sty.startsWith('b');return<path key={e.id} d={d} fill="none" stroke={gr?G:D} strokeWidth={bl?4:2.5} markerEnd={bl?(gr?'url(#dfabg)':'url(#dfab)'):(gr?'url(#dfag)':'url(#dfa)')}/>;  })}
+              {ce.map(e=>{const fn=nm2[e.from]?{...nm2[e.from],...nc(nm2[e.from])}:null,tn=nm2[e.to]?{...nm2[e.to],...nc(nm2[e.to])}:null,d=ePath(fn,tn);if(!d)return null;const gr=e.sty==='sg'||e.sty==='bg';return<path key={e.id} d={d} fill="none" stroke={gr?G:D} strokeWidth={2} markerEnd={gr?'url(#dfag)':'url(#dfa)'}/>;})}
             </svg>
             {cn.map(n=>{
               const bc=n._r>=0.5?'#FFEBEE':n._r>=0.25?'#FFF3E0':'#fff';
