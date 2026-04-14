@@ -2,380 +2,317 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>geoENERGIE Tool · Feedback</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>geoENERGIE · Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{font-family:'DM Sans',sans-serif;background:#F2F7F6;color:#222;min-height:100vh}
-input,textarea,button,select{font-family:inherit}
-.card{background:#fff;border-radius:12px;padding:22px;box-shadow:0 2px 14px rgba(0,0,0,.08);margin-bottom:16px}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
-.obox{background:#fff;border-radius:16px;padding:32px;max-width:560px;width:95%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.28)}
-.btn{border:none;border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;font-size:13px;transition:opacity .15s,background .15s}
-.btn:disabled{opacity:.38;cursor:not-allowed}
-.btn-t{background:#00857A;color:#fff}.btn-t:hover:not(:disabled){background:#1a5c58}
-.btn-d{background:#1a5c58;color:#fff}.btn-d:hover:not(:disabled){background:#0f3835}
-.btn-r{background:#EF5350;color:#fff}.btn-r:hover:not(:disabled){background:#C62828}
-.btn-gray{background:#888;color:#fff}
+html,body{font-family:'DM Sans',sans-serif;background:#F2F7F6;color:#222;min-height:100vh;-webkit-tap-highlight-color:transparent}
+input,textarea,button{font-family:inherit}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 14px rgba(0,0,0,.08);margin-bottom:14px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(3px)}
+.obox{background:#fff;border-radius:16px;padding:28px;max-width:540px;width:95%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.28)}
+.btn{border:none;border-radius:8px;padding:9px 20px;font-weight:700;cursor:pointer;font-size:13px;transition:opacity .15s,background .15s;white-space:nowrap}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.bt{background:#00857A;color:#fff}.bt:hover:not(:disabled){background:#1a5c58}
+.bd{background:#1a5c58;color:#fff}.bd:hover:not(:disabled){background:#0f3835}
+.br{background:#EF5350;color:#fff}
+.bg2{background:#777;color:#fff}
 .inp{width:100%;border:1.5px solid #ddd;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;transition:border .2s}
 .inp:focus{border-color:#00857A}
-.hint{background:#E0F2F1;border-left:3px solid #00857A;border-radius:0 6px 6px 0;padding:10px 14px;font-size:12px;color:#1a5c58;margin-bottom:10px;line-height:1.6}
-.sbox{background:#E0F2F1;border:2px solid #00857A;border-radius:10px;padding:16px;margin-top:14px}
-.surl{background:#fff;border:1px solid #B2DFDB;border-radius:6px;padding:9px;font-family:monospace;font-size:10px;word-break:break-all;margin:7px 0;max-height:68px;overflow-y:auto;color:#333}
-.step-info{display:flex;align-items:flex-start;gap:10px;background:#F2F7F6;border-radius:8px;padding:10px 13px;margin-bottom:8px;font-size:12px;color:#555;line-height:1.5}
-.step-num{background:#1a5c58;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
-.stepper{display:flex;align-items:center;margin-bottom:18px}
-.sdot{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.hint{background:#E0F2F1;border-left:3px solid #00857A;border-radius:0 6px 6px 0;padding:10px 14px;font-size:12px;color:#1a5c58;margin-bottom:10px;line-height:1.55}
+.sinfo{display:flex;align-items:flex-start;gap:9px;background:#F2F7F6;border-radius:8px;padding:10px 12px;margin-bottom:7px;font-size:12px;color:#555;line-height:1.5}
+.snum{background:#1a5c58;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.stepper{display:flex;align-items:center;margin-bottom:16px}
+.sdot{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
 .sline{flex:1;height:3px;margin:0 4px}
-.stars span{transition:color .1s;cursor:pointer}
-.wfc{border:2px solid #B2DFDB;border-radius:8px;background:#FAFFFE;overflow-x:auto}
-.tag{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600}
+.wf-wrap{position:relative;border:2px solid #B2DFDB;border-radius:8px;background:#FAFFFE;overflow:hidden;touch-action:none}
+.wf-node{position:absolute;border:1.5px solid #1a5c58;border-radius:3px;background:#fff;cursor:grab;user-select:none;touch-action:none;transition:box-shadow .1s}
+.wf-node.sel{box-shadow:0 0 0 2.5px #00857A}
+.wf-node.csrc{box-shadow:0 0 0 2.5px #FFB300}
+.wf-node.chov{box-shadow:0 0 0 2.5px #43A047}
+.wf-node:active{cursor:grabbing}
+.wf-node .gl{font-weight:700;color:#00857A;margin-bottom:2px}
+.wf-node .del-btn{position:absolute;top:-8px;right:-8px;background:#EF5350;color:#fff;border:none;border-radius:50%;cursor:pointer;display:none;line-height:1;text-align:center}
+.wf-node:hover .del-btn,.wf-node.sel .del-btn{display:flex;align-items:center;justify-content:center}
+.wf-node .port{position:absolute;background:#00857A;border-radius:50%;border:2px solid #fff;cursor:crosshair;opacity:0;transition:opacity .15s;z-index:5}
+.wf-node:hover .port,.wf-node.sel .port{opacity:1}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.bar-label{width:34px;text-align:right;font-size:13px;font-weight:700}
-.bar-track{flex:1;background:#f0f0f0;border-radius:4px;height:22px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
-.bar-fill span{color:#fff;font-size:11px;font-weight:700}
-.bar-pct{width:36px;font-size:12px;color:#999}
+.bar-track{flex:1;background:#f0f0f0;border-radius:4px;height:20px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:5px}
+.bar-fill span{color:#fff;font-size:10px;font-weight:700}
+.gal-item{border:1.5px solid #ddd;border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .15s;padding:8px}
+.gal-item:hover,.gal-item.gsel{border-color:#00857A;border-width:2px}
 </style>
 </head>
 <body>
 <div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="text/babel">
-const {useState,useRef,useCallback,useMemo,useEffect}=React;
-const T='#00857A',D='#1a5c58',G='#4CAF50',R='#EF5350',OR='#FF7043';
-const SL=['','Unzureichend','Verbesserungsbedürftig','Befriedigend','Gut','Ausgezeichnet'];
+const {useState,useRef,useCallback,useEffect,useMemo}=React;
+const T='#00857A',D='#1a5c58',G='#43A047',R='#EF5350',OR='#FF7043';
 const ADMIN_PIN='admin2026';
+const SL=['','Unzureichend','Verbesserungsbedürftig','Befriedigend','Gut','Ausgezeichnet'];
+const CW=1060,CH=500;
 
-// ─── URL config ────────────────────────────────────────────────────────────
 function parseCfg(){
-  try{
-    const p=new URLSearchParams(location.hash.slice(1));
-    const r=p.get('cfg'); if(!r) return null;
-    const [key,mid]=atob(r).split('|');
-    return key&&mid?{key,mid,isAdmin:p.get('admin')==='1'}:null;
-  }catch{return null;}
+  try{const p=new URLSearchParams(location.hash.slice(1)),r=p.get('cfg');if(!r)return null;const[k,m]=atob(r).split('|');return k&&m?{key:k,mid:m,isAdmin:p.get('admin')==='1'}:null;}catch{return null;}
 }
-function makeUrls(key,mid){
-  const b=location.href.split('#')[0];
-  const e=btoa(key+'|'+mid);
-  return{participant:b+'#cfg='+e, admin:b+'#cfg='+e+'&admin=1'};
-}
+function makeUrls(k,m){const b=location.href.split('#')[0],e=btoa(k+'|'+m);return{participant:b+'#cfg='+e,admin:b+'#cfg='+e+'&admin=1'};}
 
-// ─── JSONBin API — concurrent-safe ────────────────────────────────────────
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-
 async function apiCreate(key){
-  const r=await fetch('https://api.jsonbin.io/v3/b',{
-    method:'POST',
-    headers:{'X-Master-Key':key,'Content-Type':'application/json','X-Bin-Name':'ge-master-idx'},
-    body:JSON.stringify({ids:[]})
-  });
-  if(!r.ok) throw new Error('Bin-Erstellung fehlgeschlagen ('+r.status+') — API Key prüfen');
-  return (await r.json()).metadata.id;
+  const r=await fetch('https://api.jsonbin.io/v3/b',{method:'POST',headers:{'X-Master-Key':key,'Content-Type':'application/json','X-Bin-Name':'ge-master-v4'},body:JSON.stringify({ids:[]})});
+  if(!r.ok)throw new Error('Bin fehlgeschlagen ('+r.status+')');return(await r.json()).metadata.id;
 }
-
 async function apiSubmit(key,mid,data){
-  // Random delay 0-4s spreads 30 simultaneous submits
   await sleep(Math.random()*4000);
-  // Each response = own bin → no write conflict at all
-  const cr=await fetch('https://api.jsonbin.io/v3/b',{
-    method:'POST',
-    headers:{'X-Master-Key':key,'Content-Type':'application/json',
-      'X-Bin-Name':'ge-r-'+Date.now()},
-    body:JSON.stringify({...data,ts:new Date().toISOString()})
-  });
-  if(!cr.ok) throw new Error('Speichern fehlgeschlagen ('+cr.status+')');
+  const cr=await fetch('https://api.jsonbin.io/v3/b',{method:'POST',headers:{'X-Master-Key':key,'Content-Type':'application/json','X-Bin-Name':'ge-r-'+Date.now()},body:JSON.stringify({...data,ts:new Date().toISOString()})});
+  if(!cr.ok)throw new Error('Speichern fehlgeschlagen ('+cr.status+')');
   const rid=(await cr.json()).metadata.id;
-  // Register in index with retry+backoff
   for(let i=0;i<10;i++){
-    try{
-      const mr=await fetch('https://api.jsonbin.io/v3/b/'+mid+'/latest',
-        {headers:{'X-Master-Key':key}});
-      if(!mr.ok) throw 0;
-      const ids=(await mr.json()).record.ids||[];
-      if(ids.includes(rid)) return; // already registered
-      const mw=await fetch('https://api.jsonbin.io/v3/b/'+mid,{
-        method:'PUT',
-        headers:{'X-Master-Key':key,'Content-Type':'application/json'},
-        body:JSON.stringify({ids:[...ids,rid]})
-      });
-      if(mw.ok) return;
-    }catch{}
+    try{const mr=await fetch('https://api.jsonbin.io/v3/b/'+mid+'/latest',{headers:{'X-Master-Key':key}});if(!mr.ok)throw 0;const ids=(await mr.json()).record.ids||[];if(ids.includes(rid))return;const mw=await fetch('https://api.jsonbin.io/v3/b/'+mid,{method:'PUT',headers:{'X-Master-Key':key,'Content-Type':'application/json'},body:JSON.stringify({ids:[...ids,rid]})});if(mw.ok)return;}catch{}
     await sleep(Math.pow(2,i)*250+Math.random()*500);
   }
-  // Response saved in rid — only index update failed. Acceptable.
 }
-
 async function apiLoad(key,mid){
-  const mr=await fetch('https://api.jsonbin.io/v3/b/'+mid+'/latest',
-    {headers:{'X-Master-Key':key}});
-  if(!mr.ok) throw new Error('Laden fehlgeschlagen ('+mr.status+')');
-  const ids=(await mr.json()).record.ids||[];
-  if(!ids.length) return [];
-  const rs=await Promise.allSettled(ids.map(async id=>{
-    const r=await fetch('https://api.jsonbin.io/v3/b/'+id+'/latest',
-      {headers:{'X-Master-Key':key}});
-    return r.ok?(await r.json()).record:null;
-  }));
+  const mr=await fetch('https://api.jsonbin.io/v3/b/'+mid+'/latest',{headers:{'X-Master-Key':key}});
+  if(!mr.ok)throw new Error('Laden fehlgeschlagen ('+mr.status+')');
+  const ids=(await mr.json()).record.ids||[];if(!ids.length)return[];
+  const rs=await Promise.allSettled(ids.map(async id=>{const r=await fetch('https://api.jsonbin.io/v3/b/'+id+'/latest',{headers:{'X-Master-Key':key}});return r.ok?(await r.json()).record:null;}));
   return rs.filter(r=>r.status==='fulfilled'&&r.value).map(r=>r.value);
 }
-
 async function apiClear(key,mid){
-  const mr=await fetch('https://api.jsonbin.io/v3/b/'+mid+'/latest',
-    {headers:{'X-Master-Key':key}});
-  if(!mr.ok) throw new Error('Laden fehlgeschlagen');
-  const ids=(await mr.json()).record.ids||[];
-  await Promise.allSettled(ids.map(id=>
-    fetch('https://api.jsonbin.io/v3/b/'+id,{method:'DELETE',
-      headers:{'X-Master-Key':key}})
-  ));
-  await fetch('https://api.jsonbin.io/v3/b/'+mid,{
-    method:'PUT',
-    headers:{'X-Master-Key':key,'Content-Type':'application/json'},
-    body:JSON.stringify({ids:[]})
-  });
+  const mr=await fetch('https://api.jsonbin.io/v3/b/'+mid+'/latest',{headers:{'X-Master-Key':key}});
+  if(!mr.ok)throw new Error('Laden fehlgeschlagen');const ids=(await mr.json()).record.ids||[];
+  await Promise.allSettled(ids.map(id=>fetch('https://api.jsonbin.io/v3/b/'+id,{method:'DELETE',headers:{'X-Master-Key':key}})));
+  await fetch('https://api.jsonbin.io/v3/b/'+mid,{method:'PUT',headers:{'X-Master-Key':key,'Content-Type':'application/json'},body:JSON.stringify({ids:[]})});
 }
 
-// ─── Workflow data — faithful to slide ────────────────────────────────────
-// viewBox 0 0 1080 500, coordinates match slide layout
+function initNodes(){return[
+  {id:'proj',  x:8,  y:132,w:188,h:118,bdr:true, gl:'Projekt',                 glU:false,text:'Projektinformationen\nProjektverzeichnis\nOGIS Projekt'},
+  {id:'ra',    x:210,y:88, w:218,h:192,bdr:true, gl:'Räumliche Analyse',        glU:false,text:'Definition des Bauvorhabens\n↓\nFreiflächenanalyse\n↓\nBelegung der Sonden'},
+  {id:'ewsp',  x:444,y:88, w:236,h:248,bdr:true, gl:'EWS Potenzial',            glU:false,text:'Sondenlayerauswahl\n↓\nSondenparameter\nUntergrund\nLastkurve\nWärmepumpe\nSimulationseinstellungen'},
+  {id:'ewssz', x:696,y:112,w:186,h:112,bdr:false,gl:null,                       glU:false,text:'EWS Sizing\nTemperatursimulation\nPotenzialanalyse'},
+  {id:'ewsw',  x:898,y:88, w:155,h:192,bdr:true, gl:'EWS Wirtschaftlichkeit',   glU:true, text:'Eingaben\nSzenarien\n↓\nErgebnisse'},
+  {id:'pos',   x:210,y:368,w:218,h:122,bdr:true, gl:'Potenzial Offene Systeme', glU:true, text:'Hydrogeologie\nHydrochemie\nEnergie\nSimulationsparameter'},
+  {id:'ba',    x:444,y:368,w:236,h:108,bdr:true, gl:null,                       glU:false,text:'Brunnenanlage Dimensionierung\nBrunnenanlage Simulation\nMaximal Potenzial'},
+  {id:'bericht',x:696,y:342,w:186,h:150,bdr:true,gl:'Bericht',                 glU:false,text:'Bausteine\nText\nLinks\nDiagrammen\nKarten'},
+  {id:'pdf',   x:898,y:386,w:105,h:68, bdr:false,gl:null,                       glU:false,text:'WORD\nPDF'},
+];}
+function initEdges(){return[
+  {id:'e1', from:'proj',   to:'ra',      sty:'sd'},{id:'e2', from:'ra',    to:'ewsp',    sty:'sd'},
+  {id:'e3', from:'ra',     to:'pos',     sty:'sg'},{id:'e4', from:'ewsp',  to:'ewssz',   sty:'bd'},
+  {id:'e5', from:'ewssz',  to:'ewsw',    sty:'bd'},{id:'e6', from:'ewssz', to:'bericht', sty:'sd'},
+  {id:'e7', from:'ewsw',   to:'bericht', sty:'sd'},{id:'e8', from:'pos',   to:'ba',      sty:'bg'},
+  {id:'e9', from:'ba',     to:'bericht', sty:'bg'},{id:'e10',from:'bericht',to:'pdf',    sty:'bd'},
+];}
 
-const NODES=[
-  {id:'proj',
-   x:8,y:130,w:186,h:120,bdr:true,
-   gl:'Projekt',glU:false,
-   lns:['Projektinformationen','Projektverzeichnis','OGIS Projekt'],ul:[2]},
-
-  {id:'ra',
-   x:210,y:85,w:220,h:195,bdr:true,
-   gl:'Räumliche Analyse',glU:false,
-   lns:['Definition des Bauvorhabens','↓','Freiflächenanalyse','↓','Belegung der Sonden'],ul:[]},
-
-  {id:'ewsp',
-   x:446,y:85,w:238,h:250,bdr:true,
-   gl:'EWS Potenzial',glU:false,
-   lns:['Sondenlayerauswahl','↓','Sondenparameter','Untergrund','Lastkurve','Wärmepumpe','Simulationseinstellungen'],ul:[0,2]},
-
-  {id:'ewssz',
-   x:698,y:115,w:188,h:110,bdr:false,
-   gl:null,glU:false,
-   lns:['EWS Sizing','Temperatursimulation','Potenzialanalyse'],ul:[0]},
-
-  {id:'ewsw',
-   x:900,y:85,w:172,h:195,bdr:true,
-   gl:'EWS Wirtschaftlichkeit',glU:true,
-   lns:['Eingaben','Szenarien','↓','Ergebnisse'],ul:[]},
-
-  {id:'pos',
-   x:210,y:370,w:220,h:125,bdr:true,
-   gl:'Potenzial Offene Systeme',glU:true,
-   lns:['Hydrogeologie','Hydrochemie','Energie','Simulationsparameter'],ul:[]},
-
-  {id:'ba',
-   x:446,y:370,w:238,h:105,bdr:true,
-   gl:null,glU:false,
-   lns:['Brunnenanlage Dimensionierung','Brunnenanlage Simulation','Maximal Potenzial'],ul:[]},
-
-  {id:'bericht',
-   x:698,y:345,w:188,h:150,bdr:true,
-   gl:'Bericht',glU:false,
-   lns:['Bausteine','Text','Links','Diagrammen','Karten'],ul:[]},
-
-  {id:'pdf',
-   x:900,y:390,w:110,h:70,bdr:false,
-   gl:null,glU:false,
-   lns:['WORD','PDF'],ul:[]},
-];
-
-const EDGES=[
-  // proj → ra
-  {id:'e1',pts:[{x:194,y:190},{x:210,y:190}],col:D,w:3,blk:false,mkr:'ad'},
-  // ra inner → ewsp (dark diagonal)
-  {id:'e2',pts:[{x:325,y:265},{x:446,y:97}],col:D,w:4,blk:false,mkr:'ad'},
-  // ra inner → pos (green diagonal)
-  {id:'e3',pts:[{x:280,y:280},{x:270,y:370}],col:G,w:4,blk:false,mkr:'ag'},
-  // ewsp → ewssz (block dark)
-  {id:'e4',pts:[{x:684,y:165},{x:698,y:165}],col:D,w:4,blk:true,mkr:'bd'},
-  // ewssz → ewsw (block dark)
-  {id:'e5',pts:[{x:886,y:160},{x:900,y:160}],col:D,w:4,blk:true,mkr:'bd'},
-  // ewssz down → bericht
-  {id:'e6',pts:[{x:792,y:225},{x:792,y:345}],col:D,w:3,blk:false,mkr:'ad'},
-  // ewsw down → bericht (via bend)
-  {id:'e7',pts:[{x:986,y:280},{x:986,y:318},{x:886,y:318},{x:886,y:345}],col:D,w:3,blk:false,mkr:'ad'},
-  // pos → ba (block green)
-  {id:'e8',pts:[{x:430,y:428},{x:446,y:428}],col:G,w:4,blk:true,mkr:'bg'},
-  // ba → bericht (block green)
-  {id:'e9',pts:[{x:684,y:425},{x:698,y:425}],col:G,w:4,blk:true,mkr:'bg'},
-  // bericht → pdf (big block dark)
-  {id:'e10',pts:[{x:886,y:422},{x:900,y:422}],col:D,w:5,blk:true,mkr:'bdlg'},
-];
-
-function nodeCenter(n){return{x:n.x+n.w/2,y:n.y+n.h/2};}
-
-function lnY(node,i){
-  const base=node.y+(node.bdr?14:12);
-  let y=base;
-  for(let j=0;j<i;j++) y+=node.lns[j]==='↓'?16:13;
-  return y;
+function nc(n){return{cx:n.x+n.w/2,cy:n.y+n.h/2};}
+function ePath(a,b){
+  if(!a||!b)return null;
+  const dx=b.cx-a.cx,dy=b.cy-a.cy;
+  let x1,y1,x2,y2;
+  if(Math.abs(dx)>=Math.abs(dy)){x1=dx>0?a.x+a.w:a.x;y1=a.cy;x2=dx>0?b.x:b.x+b.w;y2=b.cy;}
+  else{x1=a.cx;y1=dy>0?a.y+a.h:a.y;x2=b.cx;y2=dy>0?b.y:b.y+b.h;}
+  const mx=(x1+x2)/2;
+  if(Math.abs(dx)>=Math.abs(dy))return`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+  const my=(y1+y2)/2;return`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`;
+}
+function eStroke(sty){return sty==='sg'||sty==='bg'?G:D;}
+function eWidth(sty){return sty.startsWith('b')?4:2.5;}
+function eMkr(sty){
+  if(sty==='bg')return'url(#abg)';if(sty==='bd')return'url(#abd)';
+  if(sty==='sg')return'url(#ag)';return'url(#ad)';
 }
 
-// ─── SVG Workflow renderer ─────────────────────────────────────────────────
-function WorkflowSVG({mode,delN,delE,onTN,onTE,nStats,eStats,addedItems,total}){
-  delN=delN||new Set(); delE=delE||new Set();
-  nStats=nStats||{}; eStats=eStats||{};
-  addedItems=addedItems||[];
+function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
+  const wRef=useRef(null);
+  const [sel,setSel]=useState(null);
+  const [editId,setEditId]=useState(null);
+  const [connSrc,setConnSrc]=useState(null);
+  const [hov,setHov]=useState(null);
+  const [drag,setDrag]=useState(null);
+  const [wire,setWire]=useState(null);
+  const [scale,setScale]=useState(1);
+  const nm=useMemo(()=>Object.fromEntries(nodes.map(n=>[n.id,n])),[nodes]);
 
-  function heatCol(retained){
-    if(retained===undefined||retained===null) return null;
-    if(retained<0.35) return{fill:'rgba(239,83,80,.25)',stroke:R};
-    if(retained<0.65) return{fill:'rgba(255,112,67,.2)',stroke:OR};
-    return null;
+  useEffect(()=>{
+    const u=()=>{if(wRef.current)setScale(wRef.current.offsetWidth/CW);};
+    u();window.addEventListener('resize',u);return()=>window.removeEventListener('resize',u);
+  },[]);
+
+  function toC(cx,cy){const r=wRef.current.getBoundingClientRect();return{x:(cx-r.left)/scale,y:(cy-r.top)/scale};}
+
+  function startDrag(e,id){
+    if(readOnly||editId)return;e.stopPropagation();
+    const p=e.touches?e.touches[0]:e,{x,y}=toC(p.clientX,p.clientY),n=nm[id];
+    setDrag({id,ox:x-n.x,oy:y-n.y});setSel(id);setConnSrc(null);
+  }
+  function startPort(e,fromId){
+    if(readOnly)return;e.stopPropagation();e.preventDefault();
+    const p=e.touches?e.touches[0]:e,{x,y}=toC(p.clientX,p.clientY);
+    setWire({fromId,x,y});setConnSrc(null);
   }
 
-  const pts2s=pts=>pts.map(p=>p.x+','+p.y).join(' ');
+  useEffect(()=>{
+    function mm(e){
+      const p=e.touches?e.touches[0]:e,{x,y}=toC(p.clientX,p.clientY);
+      if(drag)setNodes(ns=>ns.map(n=>n.id===drag.id?{...n,x:Math.max(0,Math.min(CW-n.w,x-drag.ox)),y:Math.max(0,Math.min(CH-n.h,y-drag.oy))}:n));
+      if(wire){setWire(w=>({...w,x,y}));const h=nodes.find(n=>n.id!==wire.fromId&&x>=n.x&&x<=n.x+n.w&&y>=n.y&&y<=n.y+n.h);setHov(h?h.id:null);}
+    }
+    function mu(){
+      if(wire&&hov&&!edges.some(e=>e.from===wire.fromId&&e.to===hov))
+        setEdges(es=>[...es,{id:'ec'+Date.now(),from:wire.fromId,to:hov,sty:'sd'}]);
+      setDrag(null);setWire(null);setHov(null);
+    }
+    window.addEventListener('mousemove',mm);window.addEventListener('mouseup',mu);
+    window.addEventListener('touchmove',mm,{passive:false});window.addEventListener('touchend',mu);
+    return()=>{window.removeEventListener('mousemove',mm);window.removeEventListener('mouseup',mu);window.removeEventListener('touchmove',mm);window.removeEventListener('touchend',mu);};
+  },[drag,wire,hov,nodes,edges]);
 
+  function clickNode(e,id){
+    if(readOnly)return;e.stopPropagation();
+    if(connSrc){
+      if(connSrc!==id&&!edges.some(e=>e.from===connSrc&&e.to===id))
+        setEdges(es=>[...es,{id:'ec'+Date.now(),from:connSrc,to:id,sty:'sd'}]);
+      setConnSrc(null);
+    }else setSel(id);
+  }
+  function dblNode(e,id){if(readOnly)return;e.stopPropagation();setEditId(id);setSel(id);}
+  function finishEdit(id,v){setNodes(ns=>ns.map(n=>n.id===id?{...n,text:v}:n));setEditId(null);}
+  function delNode(id){setNodes(ns=>ns.filter(n=>n.id!==id));setEdges(es=>es.filter(e=>e.from!==id&&e.to!==id));if(sel===id)setSel(null);}
+  function addNode(){
+    const id='n'+Date.now();
+    setNodes(ns=>[...ns,{id,x:80+Math.random()*300,y:80+Math.random()*200,w:160,h:80,bdr:true,gl:null,glU:false,text:'Neuer Schritt'}]);
+    setSel(id);setTimeout(()=>setEditId(id),60);
+  }
+  function editGL(id){const n=nm[id];const nl=prompt('Gruppen-Label (leer = entfernen):',n.gl||'');if(nl!==null)setNodes(ns=>ns.map(nd=>nd.id===id?{...nd,gl:nl||null}:nd));}
+
+  const marks=(
+    <defs>
+      <marker id="ad"  markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={D}/></marker>
+      <marker id="ag"  markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={G}/></marker>
+      <marker id="abd" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={D}/></marker>
+      <marker id="abg" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={G}/></marker>
+      <marker id="anew" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill="#9C27B0"/></marker>
+    </defs>
+  );
+
+  const CH2=CH*scale;
   return(
-    <div className="wfc">
-      <svg viewBox="0 0 1082 505" style={{display:'block',minWidth:680,width:'100%'}}>
-        <defs>
-          <marker id="ad" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0,0 10,3.5 0,7" fill={D}/>
-          </marker>
-          <marker id="ag" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0,0 10,3.5 0,7" fill={G}/>
-          </marker>
-          <marker id="bd" markerWidth="18" markerHeight="12" refX="17" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M0,2 L11,2 L11,0 L18,6 L11,12 L11,10 L0,10 Z" fill={D}/>
-          </marker>
-          <marker id="bg" markerWidth="18" markerHeight="12" refX="17" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M0,2 L11,2 L11,0 L18,6 L11,12 L11,10 L0,10 Z" fill={G}/>
-          </marker>
-          <marker id="bdlg" markerWidth="22" markerHeight="15" refX="21" refY="7.5" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M0,2.5 L14,2.5 L14,0 L22,7.5 L14,15 L14,12.5 L0,12.5 Z" fill={D}/>
-          </marker>
-          <marker id="ar" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0,0 10,3.5 0,7" fill={R}/>
-          </marker>
-        </defs>
+    <div>
+      {!readOnly&&(
+        <div style={{display:'flex',gap:6,marginBottom:8,flexWrap:'wrap',alignItems:'center'}}>
+          <button className="btn bt" onClick={addNode} style={{fontSize:12,padding:'7px 14px'}}>＋ Block</button>
+          <button className="btn" style={{background:connSrc?'#FFB300':D,color:'#fff',fontSize:12,padding:'7px 14px'}}
+            onClick={()=>sel?setConnSrc(sel):null} disabled={!sel&&!connSrc}>
+            {connSrc?'🔗 Ziel anklicken':'→ Verbinden'}
+          </button>
+          {connSrc&&<button className="btn bg2" style={{fontSize:12,padding:'7px 14px'}} onClick={()=>setConnSrc(null)}>✕</button>}
+          <span style={{fontSize:11,color:'#aaa',fontStyle:'italic',flex:1,minWidth:0}}>
+            {connSrc?'Klicke auf Ziel-Block…':sel?`"${(nm[sel]?.text||'').split('\n')[0]}" — Ziehen, Doppelklick zum Bearbeiten`:'Klick = auswählen · Ziehen = verschieben · Doppelklick = Text bearbeiten'}
+          </span>
+        </div>
+      )}
+      <div className="wf-wrap" ref={wRef} style={{height:CH2,cursor:connSrc?'crosshair':'default'}}
+        onClick={()=>{if(connSrc)setConnSrc(null);else setSel(null);}}>
+        <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',
+          transform:`scale(${scale})`,transformOrigin:'top left',overflow:'visible'}}
+          width={CW} height={CH}>
+          {marks}
+          {edges.map(e=>{
+            const fn=nm[e.from]?{...nm[e.from],...nc(nm[e.from])}:null;
+            const tn=nm[e.to]?{...nm[e.to],...nc(nm[e.to])}:null;
+            const d=ePath(fn,tn);if(!d)return null;
+            return(
+              <g key={e.id}>
+                <path d={d} fill="none" stroke={eStroke(e.sty)} strokeWidth={eWidth(e.sty)} markerEnd={eMkr(e.sty)}/>
+                {!readOnly&&<path d={d} fill="none" stroke="transparent" strokeWidth={18}
+                  style={{cursor:'pointer',pointerEvents:'stroke'}}
+                  onClick={ev=>{ev.stopPropagation();if(window.confirm('Verbindung löschen?'))setEdges(es=>es.filter(x=>x.id!==e.id));}}/>}
+              </g>
+            );
+          })}
+          {wire&&(()=>{const fn=nm[wire.fromId];if(!fn)return null;const c=nc(fn);return<line x1={c.cx} y1={c.cy} x2={wire.x} y2={wire.y} stroke="#9C27B0" strokeWidth={2} strokeDasharray="5,3" markerEnd="url(#anew)"/>;})()}
+        </svg>
 
-        {/* Edges */}
-        {EDGES.map(edge=>{
-          const isDel=mode==='edit'&&delE.has(edge.id);
-          const st=eStats[edge.id];
-          const ht=mode==='diff'&&st?heatCol(st.ret):null;
-          const stroke=isDel?R:(ht?ht.stroke:edge.col);
-          const dash=isDel?'7,4':ht?'5,3':'none';
-          const mkr=isDel?'ar':edge.mkr;
-          const op=isDel?0.35:ht?0.7:1;
-          const ps=pts2s(edge.pts);
-          const mi=Math.floor(edge.pts.length/2);
-          const mx=(edge.pts[mi].x+(edge.pts[Math.max(0,mi-1)].x))/2;
-          const my=(edge.pts[mi].y+(edge.pts[Math.max(0,mi-1)].y))/2;
+        {nodes.map(node=>{
+          const isSel=sel===node.id,isCS=connSrc===node.id,isHov=hov===node.id,isEd=editId===node.id;
+          const fs=10*scale,glFs=9*scale,pad=`${6*scale}px ${8*scale}px`,dbs=18*scale;
           return(
-            <g key={edge.id} opacity={op}>
-              <polyline points={ps} fill="none" stroke={stroke}
-                strokeWidth={edge.w} strokeDasharray={dash}
-                markerEnd={'url(#'+mkr+')'}/>
-              <polyline points={ps} fill="none" stroke="transparent" strokeWidth={18}
-                style={{cursor:mode==='edit'?'pointer':'default'}}
-                onClick={()=>mode==='edit'&&onTE&&onTE(edge.id)}/>
-              {mode==='diff'&&st&&st.del>0&&(
-                <g transform={'translate('+mx+','+my+')'}>
-                  <rect x={-18} y={-9} width={36} height={17} rx={8}
-                    fill={ht?ht.stroke:OR} opacity={.9}/>
-                  <text textAnchor="middle" y={4} fontSize={9} fill="#fff" fontWeight={700}>
-                    -{Math.round(st.del/total*100)}%
-                  </text>
-                </g>
-              )}
-            </g>
-          );
-        })}
-
-        {/* Nodes */}
-        {NODES.map(node=>{
-          const isDel=mode==='edit'&&delN.has(node.id);
-          const st=nStats[node.id];
-          const ht=mode==='diff'&&st?heatCol(st.ret):null;
-          return(
-            <g key={node.id}
-              onClick={()=>mode==='edit'&&onTN&&onTN(node.id)}
-              style={{cursor:mode==='edit'?'pointer':'default'}}>
-
-              {node.gl&&(
-                <text x={node.x+node.w/2} y={node.y-5}
-                  textAnchor="middle" fontSize={10.5} fontWeight={700} fill={T}
-                  textDecoration={node.glU?'underline':'none'}>
+            <div key={node.id}
+              className={'wf-node'+(isSel?' sel':'')+(isCS?' csrc':'')+(isHov?' chov':'')+(node.bdr?'':' nb')}
+              style={{left:node.x*scale,top:node.y*scale,width:node.w*scale,minHeight:node.h*scale,
+                fontSize:fs,padding:pad,border:node.bdr?`1.5px solid ${D}`:'none',background:node.bdr?'#fff':'transparent'}}
+              onMouseDown={e=>startDrag(e,node.id)}
+              onTouchStart={e=>startDrag(e,node.id)}
+              onClick={e=>clickNode(e,node.id)}
+              onDoubleClick={e=>dblNode(e,node.id)}>
+              {node.gl&&!isEd&&(
+                <div className="gl" style={{fontSize:glFs,textDecoration:node.glU?'underline':'none',cursor:readOnly?'default':'text',marginBottom:2*scale}}
+                  onDoubleClick={e=>{e.stopPropagation();if(!readOnly)editGL(node.id);}}>
                   {node.gl}
-                </text>
+                </div>
               )}
-
-              {node.bdr&&(
-                <rect x={node.x} y={node.y} width={node.w} height={node.h}
-                  fill="#fff" stroke={isDel?R:D} strokeWidth={isDel?2.5:1.5} rx={2}
-                  opacity={isDel?0.25:1}/>
+              {isEd?(
+                <textarea autoFocus defaultValue={node.text}
+                  style={{width:'100%',border:'none',outline:'none',resize:'none',fontSize:fs,lineHeight:1.35,background:'transparent',fontFamily:'inherit',minHeight:40*scale}}
+                  rows={Math.max(3,(node.text||'').split('\n').length+1)}
+                  onBlur={e=>finishEdit(node.id,e.target.value)}
+                  onKeyDown={e=>e.key==='Escape'&&finishEdit(node.id,e.target.value)}
+                  onClick={e=>e.stopPropagation()} onMouseDown={e=>e.stopPropagation()}/>
+              ):(
+                <div style={{pointerEvents:'none',lineHeight:1.35}}>
+                  {(node.text||'').split('\n').map((ln,i)=>(
+                    <div key={i} style={{fontWeight:ln==='↓'||i===0?700:400,textAlign:ln==='↓'?'center':'left',fontSize:ln==='↓'?12*scale:fs}}>{ln}</div>
+                  ))}
+                </div>
               )}
-
-              {mode==='edit'&&(
-                <rect x={node.x} y={node.y} width={node.w} height={node.h} rx={2}
-                  fill={isDel?'rgba(239,83,80,.18)':'rgba(0,133,122,.05)'}
-                  stroke={isDel?R:'transparent'} strokeWidth={2}/>
+              {!readOnly&&!isEd&&(
+                <button className="del-btn"
+                  style={{width:dbs,height:dbs,fontSize:11*scale,top:-7*scale,right:-7*scale}}
+                  onClick={e=>{e.stopPropagation();delNode(node.id);}}>×</button>
               )}
-
-              {ht&&(
-                <rect x={node.x} y={node.y} width={node.w} height={node.h} rx={2}
-                  fill={ht.fill} stroke={ht.stroke} strokeWidth={2}/>
-              )}
-
-              {node.lns.map((ln,i)=>(
-                <text key={i}
-                  x={node.x+(ln==='↓'?node.w/2:9)}
-                  y={lnY(node,i)}
-                  textAnchor={ln==='↓'?'middle':'start'}
-                  fontSize={ln==='↓'?14:10}
-                  fontWeight={ln==='↓'||i===0?700:400}
-                  fill={isDel?'#bbb':'#222'}
-                  textDecoration={node.ul.includes(i)?'underline':'none'}>
-                  {ln}
-                </text>
-              ))}
-
-              {isDel&&(
-                <>
-                  <line x1={node.x+8} y1={node.y+8}
-                    x2={node.x+node.w-8} y2={node.y+node.h-8}
-                    stroke={R} strokeWidth={2.5} opacity={.65}/>
-                  <line x1={node.x+node.w-8} y1={node.y+8}
-                    x2={node.x+8} y2={node.y+node.h-8}
-                    stroke={R} strokeWidth={2.5} opacity={.65}/>
-                </>
-              )}
-
-              {mode==='diff'&&st&&st.del>0&&(
-                <g>
-                  <rect x={node.x+node.w-40} y={node.y+5} width={36} height={17} rx={8}
-                    fill={ht?ht.stroke:OR} opacity={.92}/>
-                  <text x={node.x+node.w-22} y={node.y+16}
-                    textAnchor="middle" fontSize={9} fill="#fff" fontWeight={700}>
-                    -{Math.round(st.del/total*100)}%
-                  </text>
-                </g>
-              )}
-            </g>
+              {!readOnly&&['t','r','b','l'].map(s=>{
+                const ps={position:'absolute',width:11*scale,height:11*scale};
+                if(s==='t'){ps.top=-5*scale;ps.left='50%';ps.transform='translateX(-50%)';}
+                if(s==='r'){ps.right=-5*scale;ps.top='50%';ps.transform='translateY(-50%)';}
+                if(s==='b'){ps.bottom=-5*scale;ps.left='50%';ps.transform='translateX(-50%)';}
+                if(s==='l'){ps.left=-5*scale;ps.top='50%';ps.transform='translateY(-50%)';}
+                return<div key={s} className="port" style={ps}
+                  onMouseDown={e=>startPort(e,node.id)}
+                  onTouchStart={e=>startPort(e,node.id)}
+                  title="Ziehen = neue Verbindung"/>;
+              })}
+            </div>
           );
         })}
+      </div>
+      {!readOnly&&<div style={{fontSize:11,color:'#bbb',marginTop:4,fontStyle:'italic'}}>
+        💡 Doppelklick = Text bearbeiten · Punkt ziehen = Verbindung · Verbindung klicken = löschen · × = Block löschen
+      </div>}
+    </div>
+  );
+}
 
-        {/* Added nodes — shown below in diff mode */}
-        {mode==='diff'&&addedItems.length>0&&addedItems.slice(0,9).map((it,i)=>(
-          <g key={i} transform={'translate('+(8+i*130)+',488)'}>
-            <rect width={125} height={16} rx={8} fill="#E8F5E9" stroke={G} strokeWidth={1}/>
-            <text x={62} y={11.5} textAnchor="middle" fontSize={8.5}
-              fill="#2E7D32" fontWeight={700}>
-              + {it.label.length>16?it.label.slice(0,15)+'…':it.label} ({it.count}×)
-            </text>
+function WFThumb({nodes,edges}){
+  const nm=Object.fromEntries(nodes.map(n=>[n.id,n]));
+  const sc=180/CW,h=CH*sc;
+  return(
+    <div style={{position:'relative',width:180,height:h,background:'#FAFFFE',overflow:'hidden'}}>
+      <svg width={CW} height={CH} style={{position:'absolute',top:0,left:0,width:180,height:h,transform:`scale(${sc})`,transformOrigin:'top left'}}>
+        <defs>
+          <marker id="tha" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill={D}/></marker>
+          <marker id="thag" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill={G}/></marker>
+        </defs>
+        {edges.map(e=>{const fn=nm[e.from]?{...nm[e.from],...nc(nm[e.from])}:null,tn=nm[e.to]?{...nm[e.to],...nc(nm[e.to])}:null,d=ePath(fn,tn);if(!d)return null;const gr=e.sty==='sg'||e.sty==='bg';return<path key={e.id} d={d} fill="none" stroke={gr?G:D} strokeWidth={e.sty.startsWith('b')?3:2} markerEnd={gr?'url(#thag)':'url(#tha)'}/>;})}
+        {nodes.map(n=>(
+          <g key={n.id}>
+            {n.bdr&&<rect x={n.x} y={n.y} width={n.w} height={n.h} fill="#fff" stroke={D} strokeWidth={1} rx={2}/>}
+            <text x={n.x+5} y={n.y+13} fontSize={8} fontWeight={700} fill="#222">{(n.text||'').split('\n')[0].slice(0,20)}</text>
           </g>
         ))}
       </svg>
@@ -383,676 +320,249 @@ function WorkflowSVG({mode,delN,delE,onTN,onTE,nStats,eStats,addedItems,total}){
   );
 }
 
-// ─── Setup (organiser only) ────────────────────────────────────────────────
 function SetupScreen({onDone}){
-  const [apiKey,setApiKey]=useState('');
-  const [busy,setBusy]=useState(false);
-  const [err,setErr]=useState('');
-  const [urls,setUrls]=useState(null);
-  const [copied,setCopied]=useState('');
-
-  const create=async()=>{
-    if(!apiKey.trim()){setErr('API Key eingeben.');return;}
-    setBusy(true);setErr('');
-    try{const mid=await apiCreate(apiKey.trim());setUrls(makeUrls(apiKey.trim(),mid));}
-    catch(e){setErr(e.message);}
-    finally{setBusy(false);}
-  };
-
-  const copy=(k,v)=>{
-    navigator.clipboard.writeText(v);
-    setCopied(k);setTimeout(()=>setCopied(''),2500);
-  };
-
+  const [k,setK]=useState('');const [busy,setBusy]=useState(false);const [err,setErr]=useState('');const [urls,setUrls]=useState(null);const [cp,setCp]=useState('');
+  const create=async()=>{if(!k.trim()){setErr('API Key eingeben');return;}setBusy(true);setErr('');try{const m=await apiCreate(k.trim());setUrls(makeUrls(k.trim(),m));}catch(e){setErr(e.message);}finally{setBusy(false);};};
+  const copy=(id,v)=>{navigator.clipboard.writeText(v);setCp(id);setTimeout(()=>setCp(''),2500);};
   return(
-    <div className="overlay">
-      <div className="obox">
-        <h2 style={{color:D,marginBottom:6,fontSize:20}}>⚙️ Einmalige Einrichtung</h2>
-        <p style={{color:'#888',fontSize:13,lineHeight:1.65,marginBottom:18}}>
-          Diese Seite sehen <strong>nur Sie</strong>. Teilnehmer erhalten eine direkte URL ohne Setup.
-        </p>
-
-        <div className="step-info"><div className="step-num">1</div>
-          <div>Kostenlosen Account auf <a href="https://jsonbin.io" target="_blank" style={{color:T,fontWeight:700}}>jsonbin.io</a> erstellen → <strong>API Keys</strong> → <strong>+ CREATE KEY</strong></div>
+    <div className="overlay"><div className="obox">
+      <h2 style={{color:D,marginBottom:6,fontSize:19}}>⚙️ Einmalige Einrichtung</h2>
+      <p style={{color:'#888',fontSize:13,lineHeight:1.65,marginBottom:16}}>Diese Seite sehen <strong>nur Sie</strong>. Teilnehmer erhalten eine direkte URL ohne Setup.</p>
+      <div className="sinfo"><div className="snum">1</div><div>Kostenlosen Account auf <a href="https://jsonbin.io" target="_blank" style={{color:T,fontWeight:700}}>jsonbin.io</a> → <strong>API Keys → + CREATE KEY</strong></div></div>
+      <div className="sinfo"><div className="snum">2</div><div>Master Key unten eingeben → <strong>Erstellen</strong></div></div>
+      <div className="sinfo"><div className="snum">3</div><div><strong>Teilnehmer-URL</strong> → QR Code → Folie | <strong>Admin-URL</strong> → nur Sie (PIN: <code style={{background:'#f5f5f5',padding:'1px 5px',borderRadius:4}}>{ADMIN_PIN}</code>)</div></div>
+      {!urls?(<>
+        <div style={{marginTop:14}}><label style={{display:'block',fontWeight:700,fontSize:12,color:D,marginBottom:5}}>Master API Key</label>
+        <input className="inp" type="text" value={k} onChange={e=>setK(e.target.value)} placeholder="$2a$10$..." style={{fontFamily:'monospace',fontSize:11}}/></div>
+        <button className="btn bt" style={{width:'100%',marginTop:12}} onClick={create} disabled={busy}>{busy?'⏳ Erstelle…':'🚀 Erstellen & URLs generieren'}</button>
+      </>):(<>
+        <div style={{background:'#E0F2F1',border:'2px solid '+T,borderRadius:10,padding:16,marginTop:14}}>
+          <div style={{fontWeight:700,fontSize:12,color:D,marginBottom:10}}>✅ Fertig!</div>
+          <div style={{fontSize:11,color:T,fontWeight:700,marginBottom:3}}>👥 Teilnehmer-URL</div>
+          <div style={{background:'#fff',border:'1px solid #B2DFDB',borderRadius:6,padding:8,fontFamily:'monospace',fontSize:10,wordBreak:'break-all',marginBottom:6}}>{urls.participant}</div>
+          <button className="btn bt" style={{width:'100%',marginBottom:10}} onClick={()=>copy('p',urls.participant)}>{cp==='p'?'✓ Kopiert!':'📋 Kopieren'}</button>
+          <div style={{fontSize:11,color:D,fontWeight:700,marginBottom:3}}>🔐 Admin-URL</div>
+          <div style={{background:'#fff',border:'1px solid #B2DFDB',borderRadius:6,padding:8,fontFamily:'monospace',fontSize:10,wordBreak:'break-all',marginBottom:6}}>{urls.admin}</div>
+          <button className="btn bd" style={{width:'100%'}} onClick={()=>copy('a',urls.admin)}>{cp==='a'?'✓ Kopiert!':'📋 Kopieren'}</button>
+          <div style={{fontSize:11,color:'#888',marginTop:10,lineHeight:1.5}}>💡 Credentials im URL-Hash — nicht an Server übertragen.<br/>🔁 Race-safe: jede Antwort = eigener Datensatz.</div>
         </div>
-        <div className="step-info"><div className="step-num">2</div>
-          <div>Master Key unten eingeben → <strong>„Erstellen"</strong> klicken</div>
-        </div>
-        <div className="step-info"><div className="step-num">3</div>
-          <div><strong>Teilnehmer-URL</strong> → QR Code → letzte Präsentationsfolie<br/>
-          <strong>Admin-URL</strong> → nur für Sie → Passwort: <code style={{background:'#f5f5f5',padding:'1px 5px',borderRadius:4}}>{ADMIN_PIN}</code></div>
-        </div>
-
-        {!urls?(<>
-          <div style={{marginTop:16}}>
-            <label style={{display:'block',fontWeight:700,fontSize:12,color:D,marginBottom:5}}>Master API Key</label>
-            <input className="inp" type="text" value={apiKey}
-              onChange={e=>setApiKey(e.target.value)}
-              placeholder="$2a$10$..."
-              style={{fontFamily:'monospace',fontSize:11}}/>
-          </div>
-          <button className="btn btn-t" style={{width:'100%',marginTop:12}}
-            onClick={create} disabled={busy}>
-            {busy?'⏳ Erstelle Datenspeicher…':'🚀 Erstellen & URLs generieren'}
-          </button>
-        </>):(<>
-          <div className="sbox">
-            <div style={{fontWeight:700,fontSize:12,color:D,marginBottom:8}}>✅ Fertig! Zwei URLs wurden erstellt:</div>
-
-            <div style={{fontSize:11,color:T,fontWeight:700,marginBottom:3}}>👥 Teilnehmer-URL (→ QR Code)</div>
-            <div className="surl">{urls.participant}</div>
-            <button className="btn btn-t" style={{width:'100%',marginBottom:10}}
-              onClick={()=>copy('p',urls.participant)}>
-              {copied==='p'?'✓ Kopiert!':'📋 Teilnehmer-URL kopieren'}
-            </button>
-
-            <div style={{fontSize:11,color:D,fontWeight:700,marginBottom:3}}>🔐 Admin-URL (nur für Sie)</div>
-            <div className="surl">{urls.admin}</div>
-            <button className="btn btn-d" style={{width:'100%'}}
-              onClick={()=>copy('a',urls.admin)}>
-              {copied==='a'?'✓ Kopiert!':'📋 Admin-URL kopieren'}
-            </button>
-
-            <div style={{fontSize:11,color:'#888',marginTop:10,lineHeight:1.5}}>
-              💡 Credentials im URL-Hash (#) — werden nicht an Server übertragen.<br/>
-              🔁 Race-Condition-sicher: jede Antwort = eigener Datensatz.
-            </div>
-          </div>
-          <button className="btn btn-t" style={{width:'100%',marginTop:10}}
-            onClick={()=>location.href=urls.admin}>
-            → Admin-App öffnen
-          </button>
-        </>)}
-        {err&&<div style={{color:R,fontSize:12,marginTop:10,textAlign:'center'}}>⚠️ {err}</div>}
-      </div>
-    </div>
+        <button className="btn bt" style={{width:'100%',marginTop:10}} onClick={()=>location.href=urls.admin}>→ Admin öffnen</button>
+      </>)}
+      {err&&<div style={{color:R,fontSize:12,marginTop:10,textAlign:'center'}}>⚠️ {err}</div>}
+    </div></div>
   );
 }
 
-// ─── Admin PIN gate ────────────────────────────────────────────────────────
 function PinGate({onOk}){
-  const [pin,setPin]=useState('');
-  const [err,setErr]=useState(false);
-  const check=()=>{
-    if(pin===ADMIN_PIN){onOk();}
-    else{setErr(true);setPin('');}
-  };
+  const [p,setP]=useState(''),[err,setErr]=useState(false);
+  const chk=()=>{if(p===ADMIN_PIN)onOk();else{setErr(true);setP('');}};
   return(
-    <div className="overlay">
-      <div className="obox" style={{maxWidth:340,textAlign:'center'}}>
-        <div style={{fontSize:42,marginBottom:10}}>🔐</div>
-        <h2 style={{color:D,marginBottom:6}}>Admin-Bereich</h2>
-        <p style={{color:'#888',fontSize:13,marginBottom:18}}>Bitte Passwort eingeben</p>
-        <input className="inp" type="password" value={pin}
-          onChange={e=>{setPin(e.target.value);setErr(false);}}
-          onKeyDown={e=>e.key==='Enter'&&check()}
-          placeholder="Passwort"
-          style={{textAlign:'center',letterSpacing:4,marginBottom:10}}/>
-        {err&&<div style={{color:R,fontSize:12,marginBottom:8}}>Falsches Passwort</div>}
-        <button className="btn btn-t" style={{width:'100%'}} onClick={check}>→ Bestätigen</button>
-      </div>
-    </div>
+    <div className="overlay"><div className="obox" style={{maxWidth:300,textAlign:'center'}}>
+      <div style={{fontSize:40,marginBottom:10}}>🔐</div>
+      <h2 style={{color:D,marginBottom:6}}>Admin-Bereich</h2>
+      <input className="inp" type="password" value={p} onChange={e=>{setP(e.target.value);setErr(false);}} onKeyDown={e=>e.key==='Enter'&&chk()} placeholder="Passwort" style={{textAlign:'center',letterSpacing:4,marginBottom:8}}/>
+      {err&&<div style={{color:R,fontSize:12,marginBottom:8}}>Falsches Passwort</div>}
+      <button className="btn bt" style={{width:'100%'}} onClick={chk}>→ Bestätigen</button>
+    </div></div>
   );
 }
 
-// ─── Stars ─────────────────────────────────────────────────────────────────
 function Stars({val,set}){
   const [h,setH]=useState(0);
-  return(
-    <div>
-      <div className="stars" style={{fontSize:44}}>
-        {[1,2,3,4,5].map(s=>(
-          <span key={s}
-            style={{color:s<=(h||val)?'#FFB300':'#e0e0e0'}}
-            onMouseEnter={()=>setH(s)} onMouseLeave={()=>setH(0)}
-            onClick={()=>set(s)}>★</span>
-        ))}
-      </div>
-      {(h||val)>0&&<div style={{fontSize:12,color:T,fontWeight:700,marginTop:4}}>{SL[h||val]}</div>}
+  return(<div>
+    <div style={{display:'flex',gap:6,fontSize:44,userSelect:'none'}}>
+      {[1,2,3,4,5].map(s=><span key={s} style={{color:s<=(h||val)?'#FFB300':'#e0e0e0',cursor:'pointer'}} onMouseEnter={()=>setH(s)} onMouseLeave={()=>setH(0)} onClick={()=>set(s)}>★</span>)}
     </div>
-  );
+    {(h||val)>0&&<div style={{fontSize:12,color:T,fontWeight:700,marginTop:4}}>{SL[h||val]}</div>}
+  </div>);
 }
 
-// ─── Bar ───────────────────────────────────────────────────────────────────
 function Bar({label,count,total,color}){
   const p=total?Math.round(count/total*100):0;
-  return(
-    <div className="bar-row">
-      <span className="bar-label" style={{color}}>{label}</span>
-      <div className="bar-track">
-        <div className="bar-fill" style={{width:p+'%',background:color}}>
-          {count>0&&<span>{count}</span>}
-        </div>
-      </div>
-      <span className="bar-pct">{p>0?p+'%':''}</span>
-    </div>
-  );
+  return(<div className="bar-row">
+    <span style={{width:34,textAlign:'right',fontSize:13,fontWeight:700,color,flexShrink:0}}>{label}</span>
+    <div className="bar-track"><div className="bar-fill" style={{width:p+'%',background:color}}>{count>0&&<span>{count}</span>}</div></div>
+    <span style={{width:36,fontSize:12,color:'#999',flexShrink:0}}>{p?p+'%':''}</span>
+  </div>);
 }
 
-// ─── SVG Export (for diff result) ─────────────────────────────────────────
-function exportSVG(svgEl){
-  const svg=svgEl.querySelector('svg');
-  if(!svg) return;
-  const clone=svg.cloneNode(true);
-  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
-  const blob=new Blob([clone.outerHTML],{type:'image/svg+xml'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='geoENERGIE_workflow_diff.svg';
-  a.click();
-}
-
-// ─── Results (admin-only) ──────────────────────────────────────────────────
-function Results({data,onClear,onReload,apiKey,masterBin}){
-  const [busy,setBusy]=useState(false);
-  const [tab,setTab]=useState('stats');
-  const diffRef=useRef(null);
-
+function Results({data,onClear,onReload}){
+  const [busy,setBusy]=useState(false),[tab,setTab]=useState('stats'),[galSel,setGalSel]=useState(null);
   const reload=async()=>{setBusy(true);await onReload();setBusy(false);};
+  if(!data.length)return(<div className="card" style={{textAlign:'center',padding:50}}>
+    <div style={{fontSize:52}}>📭</div><p style={{marginTop:12,color:'#aaa',fontSize:15}}>Noch keine Feedbacks</p>
+    <button className="btn bt" style={{marginTop:14}} onClick={reload}>↻ Aktualisieren</button>
+  </div>);
 
-  if(!data.length) return(
-    <div className="card" style={{textAlign:'center',padding:50}}>
-      <div style={{fontSize:52}}>📭</div>
-      <p style={{marginTop:12,color:'#aaa',fontSize:15}}>Noch keine Feedbacks</p>
-      <button className="btn btn-t" style={{marginTop:14}} onClick={reload}>↻ Aktualisieren</button>
-    </div>
-  );
-
-  const total=data.length;
-  const ratings=data.map(r=>r.rating).filter(Boolean);
+  const total=data.length,ratings=data.map(r=>r.rating).filter(Boolean);
   const avg=ratings.length?ratings.reduce((a,b)=>a+b,0)/ratings.length:0;
-
-  // Node stats
-  const origIds=new Set(NODES.map(n=>n.id));
-  const nodeDelCnt={},addedMap={};
+  const dist=[5,4,3,2,1].map(s=>({s,n:ratings.filter(r=>r===s).length,c:[T,'#66BB6A','#FFB300',OR,R][5-s]}));
+  const origNIds=new Set(initNodes().map(n=>n.id)),nodeDel={},edgeDel={};
   data.forEach(r=>{
-    if(!r.delNodes) return;
-    r.delNodes.forEach(id=>{
-      if(origIds.has(id)) nodeDelCnt[id]=(nodeDelCnt[id]||0)+1;
-    });
-    (r.addedNodes||[]).forEach(lbl=>{
-      addedMap[lbl]=(addedMap[lbl]||0)+1;
-    });
+    const rNIds=new Set((r.nodes||[]).map(n=>n.id));
+    origNIds.forEach(id=>{if(!rNIds.has(id))nodeDel[id]=(nodeDel[id]||0)+1;});
+    const origEIds=new Set(initEdges().map(e=>e.id)),rEIds=new Set((r.edges||[]).map(e=>e.id));
+    origEIds.forEach(id=>{if(!rEIds.has(id))edgeDel[id]=(edgeDel[id]||0)+1;});
   });
-
-  const edgeDelCnt={};
-  data.forEach(r=>{
-    if(!r.delEdges) return;
-    r.delEdges.forEach(id=>{edgeDelCnt[id]=(edgeDelCnt[id]||0)+1;});
-  });
-
-  // For diff SVG: nStats, eStats, addedItems
-  const nStats={};
-  NODES.forEach(n=>{
-    const del=nodeDelCnt[n.id]||0;
-    nStats[n.id]={del,ret:(total-del)/total};
-  });
-  const eStats={};
-  EDGES.forEach(e=>{
-    const del=edgeDelCnt[e.id]||0;
-    eStats[e.id]={del,ret:(total-del)/total};
-  });
-  const addedItems=Object.entries(addedMap)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([label,count])=>({label,count}));
-
   const recs=data.filter(r=>r.recs&&r.recs.trim()).map(r=>({name:r.name,text:r.recs}));
   const cmts=data.filter(r=>r.comment&&r.comment.trim()).map(r=>r.comment);
+  const kpis=[['👥',total,'Antworten'],['⭐',avg.toFixed(1)+'★','Ø Bewertung'],['✏️',data.filter(r=>r.nodes&&r.nodes.length!==initNodes().length).length,'WF geändert'],['💬',recs.length,'Empfehlungen']];
+  const tbtn=(id,l)=>(<button onClick={()=>setTab(id)} style={{background:tab===id?D:'transparent',color:tab===id?'#fff':D,border:'1.5px solid '+D,borderRadius:7,padding:'6px 13px',cursor:'pointer',fontSize:12,fontWeight:700}}>{l}</button>);
 
-  const dist=[5,4,3,2,1].map(s=>({
-    s,n:ratings.filter(r=>r===s).length,
-    c:[T,'#66BB6A','#FFB300',OR,R][5-s]
-  }));
+  return(<div>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:8}}>
+      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{tbtn('stats','📊 Statistik')}{tbtn('diff','🔄 Diff')}{tbtn('gallery','🖼 Galerie')}{tbtn('recs','💬 Empfehlungen')}</div>
+      <div style={{display:'flex',gap:6}}>
+        <button className="btn bt" onClick={reload} disabled={busy}>{busy?'⏳':'↻'} Reload</button>
+        <button className="btn br" onClick={()=>window.confirm('Alle '+total+' Antworten löschen?')&&onClear()}>🗑️ Löschen</button>
+      </div>
+    </div>
+    <div style={{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap'}}>
+      {kpis.map(([i,v,l])=>(<div key={l} className="card" style={{flex:'1 1 110px',textAlign:'center',padding:'12px 8px',marginBottom:0}}><div style={{fontSize:22}}>{i}</div><div style={{fontSize:24,fontWeight:800,color:T,lineHeight:1.1}}>{v}</div><div style={{fontSize:11,color:'#999',marginTop:2}}>{l}</div></div>))}
+    </div>
 
-  const kpis=[
-    ['👥',total,'Antworten'],
-    ['⭐',avg.toFixed(1)+'★','Ø Bewertung'],
-    ['✏️',Object.keys(nodeDelCnt).length,'Schritte angefasst'],
-    ['💬',recs.length,'Empfehlungen'],
-  ];
+    {tab==='stats'&&(<>
+      <div className="card"><h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>⭐ Bewertungsverteilung</h3>{dist.map(({s,n,c})=><Bar key={s} label={s+'★'} count={n} total={total} color={c}/>)}</div>
+      {Object.keys(nodeDel).length>0&&(<div className="card"><h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>🗑️ Häufig entfernte Blöcke</h3>
+        {Object.entries(nodeDel).sort((a,b)=>b[1]-a[1]).map(([id,n])=>{const nd=initNodes().find(x=>x.id===id);return(<div key={id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0',borderBottom:'1px solid #f5f5f5'}}><span style={{fontSize:13}}>{nd?(nd.text||id).split('\n')[0]:id}</span><span style={{background:'#FFEBEE',color:'#C62828',borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>{n}× · {Math.round(n/total*100)}%</span></div>);})}
+      </div>)}
+      {cmts.length>0&&(<div className="card"><h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>🗨️ Kommentare</h3>{cmts.map((c,i)=><div key={i} style={{padding:'8px 12px',background:'#FFFDE7',borderRadius:6,marginBottom:6,fontSize:13,borderLeft:'3px solid #FFB300'}}>{c}</div>)}</div>)}
+    </>)}
 
-  const tabBtn=(id,lbl)=>(
-    <button onClick={()=>setTab(id)}
-      style={{background:tab===id?D:'transparent',color:tab===id?'#fff':D,
-        border:'1.5px solid '+D,borderRadius:7,padding:'6px 14px',
-        cursor:'pointer',fontSize:12,fontWeight:700}}>
-      {lbl}
-    </button>
-  );
+    {tab==='diff'&&(<div className="card">
+      <h3 style={{margin:'0 0 8px',color:D,fontSize:14}}>🔄 Aggregierter Workflow-Diff</h3>
+      <p style={{fontSize:12,color:'#888',marginBottom:12}}>Blöcke/Verbindungen die von &gt;50% entfernt wurden: <span style={{color:R,fontWeight:700}}>rot</span>. 25–50%: <span style={{color:OR,fontWeight:700}}>orange</span>.</p>
+      {(()=>{
+        const cn=initNodes().map(n=>{const d=nodeDel[n.id]||0,r=d/total;return{...n,_del:d,_r:r};});
+        const ce=initEdges().filter(e=>(edgeDel[e.id]||0)/total<0.5);
+        const nm2=Object.fromEntries(cn.map(n=>[n.id,n]));
+        return(<div style={{border:'2px solid #B2DFDB',borderRadius:8,background:'#FAFFFE',overflowX:'auto'}}>
+          <div style={{position:'relative',width:CW,height:CH}}>
+            <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%'}}>
+              <defs>
+                <marker id="dfa" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={D}/></marker>
+                <marker id="dfag" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={G}/></marker>
+                <marker id="dfab" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={D}/></marker>
+                <marker id="dfabg" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={G}/></marker>
+              </defs>
+              {ce.map(e=>{const fn=nm2[e.from]?{...nm2[e.from],...nc(nm2[e.from])}:null,tn=nm2[e.to]?{...nm2[e.to],...nc(nm2[e.to])}:null,d=ePath(fn,tn);if(!d)return null;const gr=e.sty==='sg'||e.sty==='bg',bl=e.sty.startsWith('b');return<path key={e.id} d={d} fill="none" stroke={gr?G:D} strokeWidth={bl?4:2.5} markerEnd={bl?(gr?'url(#dfabg)':'url(#dfab)'):(gr?'url(#dfag)':'url(#dfa)')}/>;  })}
+            </svg>
+            {cn.map(n=>{
+              const bc=n._r>=0.5?'#FFEBEE':n._r>=0.25?'#FFF3E0':'#fff';
+              const sc2=n._r>=0.5?R:n._r>=0.25?OR:D;
+              return(<div key={n.id} style={{position:'absolute',left:n.x,top:n.y,width:n.w,minHeight:n.h,border:n.bdr?`2px solid ${sc2}`:'none',borderRadius:3,background:bc,padding:'6px 8px',fontSize:10,lineHeight:1.35,opacity:n._r>=0.5?0.5:1}}>
+                {n.gl&&<div style={{fontSize:9,fontWeight:700,color:T,marginBottom:2}}>{n.gl}</div>}
+                {(n.text||'').split('\n').map((ln,i)=><div key={i} style={{fontWeight:i===0||ln==='↓'?700:400,textAlign:ln==='↓'?'center':'left'}}>{ln}</div>)}
+                {n._del>0&&<div style={{position:'absolute',top:3,right:4,fontSize:8,fontWeight:700,color:sc2}}>-{Math.round(n._r*100)}%</div>}
+              </div>);
+            })}
+          </div>
+        </div>);
+      })()}
+    </div>)}
 
-  return(
-    <div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:8}}>
-        <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
-          {tabBtn('stats','📊 Statistik')}
-          {tabBtn('diff','🔄 Workflow-Diff')}
-          {tabBtn('recs','💬 Empfehlungen')}
-        </div>
-        <div style={{display:'flex',gap:7}}>
-          <button className="btn btn-t" onClick={reload} disabled={busy}>
-            {busy?'⏳':'↻'} Aktualisieren
-          </button>
-          <button className="btn btn-r"
-            onClick={()=>{if(window.confirm('Alle '+total+' Antworten unwiderruflich löschen?')) onClear();}}>
-            🗑️ Löschen
-          </button>
+    {tab==='gallery'&&(<div>
+      <div className="card"><h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>🖼 Alle Workflow-Antworten ({total})</h3>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(196px,1fr))',gap:10}}>
+          {data.map((r,i)=>{const ns=r.nodes||initNodes(),es=r.edges||initEdges();return(
+            <div key={i} className={'gal-item'+(galSel===i?' gsel':'')} onClick={()=>setGalSel(galSel===i?null:i)}>
+              <WFThumb nodes={ns} edges={es}/>
+              <div style={{marginTop:5,fontSize:11,color:'#555'}}><strong>#{i+1}</strong>{r.name&&<span style={{color:T,marginLeft:5}}>{r.name}</span>}{r.rating&&<span style={{float:'right',color:'#FFB300'}}>{'★'.repeat(r.rating)}</span>}</div>
+              {r.recs&&<div style={{fontSize:10,color:'#888',marginTop:2,overflow:'hidden',maxHeight:28,lineHeight:1.3}}>{r.recs}</div>}
+            </div>
+          );})}
         </div>
       </div>
-
-      {/* KPIs */}
-      <div style={{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap'}}>
-        {kpis.map(([ico,val,lbl])=>(
-          <div key={lbl} className="card" style={{flex:'1 1 120px',textAlign:'center',padding:'14px 8px',marginBottom:0}}>
-            <div style={{fontSize:24}}>{ico}</div>
-            <div style={{fontSize:26,fontWeight:800,color:T,lineHeight:1.1}}>{val}</div>
-            <div style={{fontSize:11,color:'#999',marginTop:2}}>{lbl}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* STATS TAB */}
-      {tab==='stats'&&(
-        <>
-          <div className="card">
-            <h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>⭐ Bewertungsverteilung</h3>
-            {dist.map(({s,n,c})=><Bar key={s} label={s+'★'} count={n} total={total} color={c}/>)}
-          </div>
-
-          {Object.keys(nodeDelCnt).length>0&&(
-            <div className="card">
-              <h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>🗑️ Häufig entfernte Workflow-Schritte</h3>
-              {Object.entries(nodeDelCnt).sort((a,b)=>b[1]-a[1]).map(([id,n])=>{
-                const nd=NODES.find(x=>x.id===id);
-                const lbl=nd?nd.lns[0]:id;
-                return(
-                  <div key={id} style={{display:'flex',justifyContent:'space-between',
-                    alignItems:'center',padding:'7px 0',borderBottom:'1px solid #f5f5f5'}}>
-                    <span style={{fontSize:13}}>{lbl}</span>
-                    <span style={{background:'#FFEBEE',color:'#C62828',
-                      borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>
-                      {n}× · {Math.round(n/total*100)}%
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {Object.keys(edgeDelCnt).length>0&&(
-            <div className="card">
-              <h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>🔗 Häufig entfernte Verbindungen</h3>
-              {Object.entries(edgeDelCnt).sort((a,b)=>b[1]-a[1]).map(([id,n])=>(
-                <div key={id} style={{display:'flex',justifyContent:'space-between',
-                  alignItems:'center',padding:'7px 0',borderBottom:'1px solid #f5f5f5'}}>
-                  <span style={{fontSize:13,color:'#555'}}>Verbindung {id}</span>
-                  <span style={{background:'#FFEBEE',color:'#C62828',
-                    borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>
-                    {n}× · {Math.round(n/total*100)}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {addedItems.length>0&&(
-            <div className="card">
-              <h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>➕ Vorgeschlagene neue Schritte</h3>
-              <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-                {addedItems.map((it,i)=>(
-                  <span key={i} className="tag" style={{background:'#E8F5E9',color:'#2E7D32'}}>
-                    {it.label} ({it.count}×)
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* DIFF TAB */}
-      {tab==='diff'&&(
+      {galSel!==null&&(()=>{const r=data[galSel],ns=r.nodes||initNodes(),es=r.edges||initEdges();return(
         <div className="card">
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-            <h3 style={{margin:0,color:D,fontSize:14}}>🔄 Aggregierter Workflow-Diff ({total} Antworten)</h3>
-            <button className="btn btn-d" onClick={()=>exportSVG(diffRef.current)}>
-              ⬇ SVG Export
-            </button>
+            <h3 style={{margin:0,color:D,fontSize:14}}>Antwort #{galSel+1}{r.name?` — ${r.name}`:''}{r.rating&&<span style={{color:'#FFB300',marginLeft:8}}>{'★'.repeat(r.rating)}</span>}</h3>
+            <button className="btn bg2" onClick={()=>setGalSel(null)}>✕</button>
           </div>
-          <div style={{fontSize:11,color:'#888',marginBottom:10,lineHeight:1.6}}>
-            <span style={{background:'rgba(239,83,80,.2)',padding:'2px 8px',borderRadius:4,marginRight:6}}>rot</span>oft entfernt (≥65%)&nbsp;&nbsp;
-            <span style={{background:'rgba(255,112,67,.18)',padding:'2px 8px',borderRadius:4,marginRight:6}}>orange</span>manchmal entfernt (35–65%)&nbsp;&nbsp;
-            Zahlen = % der Teilnehmer die diesen Schritt/Pfeil entfernt haben
-          </div>
-          <div ref={diffRef}>
-            <WorkflowSVG mode="diff"
-              nStats={nStats} eStats={eStats}
-              addedItems={addedItems} total={total}/>
-          </div>
+          <WFEditor nodes={ns} setNodes={()=>{}} edges={es} setEdges={()=>{}} readOnly={true}/>
+          {r.recs&&<div style={{marginTop:12,padding:'10px 14px',background:'#F2F7F6',borderRadius:6,borderLeft:'3px solid '+T,fontSize:13}}><strong style={{color:T}}>Empfehlungen:</strong> {r.recs}</div>}
+          {r.comment&&<div style={{marginTop:8,padding:'10px 14px',background:'#FFFDE7',borderRadius:6,borderLeft:'3px solid #FFB300',fontSize:13}}><strong style={{color:'#E65100'}}>Kommentar:</strong> {r.comment}</div>}
         </div>
-      )}
+      );})()}
+    </div>)}
 
-      {/* RECS TAB */}
-      {tab==='recs'&&(
-        <>
-          {recs.length>0&&(
-            <div className="card">
-              <h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>💬 Empfehlungen ({recs.length})</h3>
-              {recs.map((r,i)=>(
-                <div key={i} style={{padding:'10px 14px',background:'#F2F7F6',
-                  borderRadius:6,marginBottom:8,borderLeft:'3px solid '+T}}>
-                  {r.name&&<div style={{fontSize:11,color:T,fontWeight:700,marginBottom:3}}>{r.name}</div>}
-                  <div style={{fontSize:13,whiteSpace:'pre-wrap'}}>{r.text}</div>
-                </div>
-              ))}
-            </div>
-          )}
-          {cmts.length>0&&(
-            <div className="card">
-              <h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>🗨️ Kommentare ({cmts.length})</h3>
-              {cmts.map((c,i)=>(
-                <div key={i} style={{padding:'8px 12px',background:'#FFFDE7',
-                  borderRadius:6,marginBottom:6,fontSize:13,borderLeft:'3px solid #FFB300'}}>
-                  {c}
-                </div>
-              ))}
-            </div>
-          )}
-          {!recs.length&&!cmts.length&&(
-            <div className="card" style={{textAlign:'center',color:'#bbb',padding:40}}>Keine Texteingaben vorhanden.</div>
-          )}
-        </>
-      )}
-    </div>
-  );
+    {tab==='recs'&&(<>
+      {recs.length>0&&<div className="card"><h3 style={{margin:'0 0 12px',color:D,fontSize:14}}>💬 Empfehlungen ({recs.length})</h3>{recs.map((r,i)=><div key={i} style={{padding:'10px 14px',background:'#F2F7F6',borderRadius:6,marginBottom:8,borderLeft:'3px solid '+T}}>{r.name&&<div style={{fontSize:11,color:T,fontWeight:700,marginBottom:3}}>{r.name}</div>}<div style={{fontSize:13,whiteSpace:'pre-wrap'}}>{r.text}</div></div>)}</div>}
+      {!recs.length&&<div className="card" style={{textAlign:'center',color:'#bbb',padding:40}}>Keine Empfehlungen.</div>}
+    </>)}
+  </div>);
 }
 
-// ─── Main App ──────────────────────────────────────────────────────────────
 function App(){
-  const cfg=parseCfg();
-  const api=cfg?{
-    submit:(d)=>apiSubmit(cfg.key,cfg.mid,d),
-    load:()=>apiLoad(cfg.key,cfg.mid),
-    clear:()=>apiClear(cfg.key,cfg.mid),
-  }:null;
+  const cfg=parseCfg(),api=cfg?{submit:d=>apiSubmit(cfg.key,cfg.mid,d),load:()=>apiLoad(cfg.key,cfg.mid),clear:()=>apiClear(cfg.key,cfg.mid)}:null;
+  const [showSetup,setShowSetup]=useState(!cfg),[adminOk,setAdminOk]=useState(false),[mode,setMode]=useState('submit');
+  const [step,setStep]=useState(1),[rating,setRating]=useState(0),[comment,setCmt]=useState('');
+  const [nodes,setNodes]=useState(()=>initNodes()),[edges,setEdges]=useState(()=>initEdges());
+  const [recs,setRecs]=useState(''),[uname,setUname]=useState('');
+  const [data,setData]=useState([]),[saving,setSaving]=useState(false),[saveErr,setSaveErr]=useState('');
 
-  const [showSetup,setShowSetup]=useState(!cfg);
-  const [adminUnlocked,setAdminUnlocked]=useState(false);
-  const [mode,setMode]=useState('submit');
-  const [step,setStep]=useState(1);
-  const [rating,setRating]=useState(0);
-  const [comment,setComment]=useState('');
-  // Workflow edit state: sets of deleted IDs + added node labels
-  const [delNodes,setDelNodes]=useState(new Set());
-  const [delEdges,setDelEdges]=useState(new Set());
-  const [addedNodes,setAddedNodes]=useState([]);
-  const [newNodeInput,setNewNodeInput]=useState('');
-  const [recs,setRecs]=useState('');
-  const [name,setName]=useState('');
-  const [data,setData]=useState([]);
-  const [saving,setSaving]=useState(false);
-  const [saveErr,setSaveErr]=useState('');
-
-  const toggleN=id=>setDelNodes(s=>{const ns=new Set(s);ns.has(id)?ns.delete(id):ns.add(id);return ns;});
-  const toggleE=id=>setDelEdges(s=>{const ns=new Set(s);ns.has(id)?ns.delete(id):ns.add(id);return ns;});
-  const addNode=()=>{
-    const v=newNodeInput.trim();
-    if(!v) return;
-    setAddedNodes(a=>[...a,v]);
-    setNewNodeInput('');
-  };
-
-  const loadResults=async()=>{
-    try{setData(await api.load());}
-    catch(e){alert('Laden fehlgeschlagen: '+e.message);}
-  };
-
-  const goResults=async()=>{setMode('results');await loadResults();};
-
-  const submit=async()=>{
-    setSaving(true);setSaveErr('');
-    try{
-      await api.submit({
-        rating,comment,
-        delNodes:[...delNodes],
-        delEdges:[...delEdges],
-        addedNodes,
-        recs,name
-      });
-      setStep('done');
-    }catch(e){setSaveErr('Fehler: '+e.message);}
-    finally{setSaving(false);}
-  };
-
-  const clearAll=async()=>{
-    try{await api.clear();setData([]);}
-    catch(e){alert(e.message);}
-  };
-
+  const loadR=async()=>{try{setData(await api.load());}catch(e){alert('Laden: '+e.message);}};
+  const goRes=async()=>{setMode('results');if(adminOk)await loadR();};
+  const submit=async()=>{setSaving(true);setSaveErr('');try{await api.submit({rating,comment,nodes,edges,recs,name:uname});setStep('done');}catch(e){setSaveErr('Fehler: '+e.message);}finally{setSaving(false);};};
+  const clearAll=async()=>{try{await api.clear();setData([]);}catch(e){alert(e.message);};};
   const isAdmin=cfg?.isAdmin;
+  const inp={border:'1.5px solid #ddd',borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none'};
 
-  // Admin access gate
-  if(isAdmin&&!adminUnlocked&&mode==='results'){
-    return <PinGate onOk={()=>{setAdminUnlocked(true);}}/>;
-  }
+  if(showSetup)return<SetupScreen onDone={()=>setShowSetup(false)}/>;
+  if(mode==='results'&&isAdmin&&!adminOk)return<PinGate onOk={async()=>{setAdminOk(true);await loadR();}}/>;
 
-  if(showSetup) return <SetupScreen onDone={()=>setShowSetup(false)}/>;
-
-  const inp={border:'1.5px solid #ddd',borderRadius:8,padding:'9px 12px',
-    fontSize:13,width:'100%',outline:'none',transition:'border .2s'};
-
-  return(
-    <div style={{fontFamily:"'DM Sans',sans-serif",background:'#F2F7F6',minHeight:'100vh'}}>
-
-      {/* Header */}
-      <div style={{background:D,padding:'11px 18px',
-        display:'flex',alignItems:'center',justifyContent:'space-between',
-        boxShadow:'0 2px 14px rgba(0,0,0,.25)'}}>
-        <div>
-          <div style={{fontSize:17,fontWeight:800,color:'#fff',letterSpacing:.3}}>
-            geo<span style={{color:'#4DB6AC'}}>ENERGIE</span> Tool
-          </div>
-          <div style={{fontSize:10.5,color:'rgba(255,255,255,.55)',marginTop:1}}>
-            Feedback · geoENERGIE Tag 2026
-          </div>
-        </div>
-        <div style={{display:'flex',gap:6,alignItems:'center'}}>
-          <button onClick={()=>setMode('submit')}
-            style={{background:mode==='submit'?'rgba(255,255,255,.2)':'transparent',
-              color:'#fff',border:'1px solid rgba(255,255,255,.3)',borderRadius:6,
-              padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-            📝 Feedback
-          </button>
-          {isAdmin&&(
-            <button onClick={()=>{
-              if(!adminUnlocked){setAdminUnlocked(false);}
-              goResults();
-            }}
-              style={{background:mode==='results'?'rgba(255,255,255,.2)':'transparent',
-                color:'#fff',border:'1px solid rgba(255,255,255,.3)',borderRadius:6,
-                padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-              📊 Ergebnisse
-            </button>
-          )}
-          <button onClick={()=>setShowSetup(true)} title="Einrichtung"
-            style={{background:'transparent',color:'rgba(255,255,255,.4)',
-              border:'none',cursor:'pointer',fontSize:18,lineHeight:1,paddingLeft:4}}>⚙</button>
-        </div>
-      </div>
-
-      <div style={{maxWidth:1020,margin:'0 auto',padding:'18px 14px'}}>
-
-        {/* SUBMIT FLOW */}
-        {mode==='submit'&&(<>
-          {step!=='done'&&(
-            <div className="stepper">
-              {[1,2,3].map((s,i)=>(
-                <React.Fragment key={s}>
-                  <div className="sdot"
-                    style={{background:s<=step?T:'#ddd'}}>
-                    {s<step?'✓':s}
-                  </div>
-                  {i<2&&<div className="sline"
-                    style={{background:s<step?T:'#ddd'}}/>}
-                </React.Fragment>
-              ))}
-            </div>
-          )}
-
-          <div className="card">
-
-            {/* Step 1 — Rating */}
-            {step===1&&(<>
-              <h2 style={{margin:'0 0 5px',color:D,fontSize:19}}>1. Gesamtbewertung</h2>
-              <p style={{color:'#888',marginBottom:18,fontSize:13}}>
-                Wie bewerten Sie den geoENERGIE Tool insgesamt?
-              </p>
-              <Stars val={rating} set={setRating}/>
-              <div style={{marginTop:18}}>
-                <label style={{display:'block',marginBottom:5,fontWeight:700,fontSize:12,color:D}}>
-                  Kommentar <span style={{color:'#bbb',fontWeight:400}}>(optional)</span>
-                </label>
-                <textarea value={comment} onChange={e=>setComment(e.target.value)}
-                  placeholder="Was hat besonders gut gefallen? Was weniger?"
-                  style={{...inp,height:88,resize:'vertical'}}/>
-              </div>
-              <div style={{textAlign:'right',marginTop:18}}>
-                <button className="btn btn-t" onClick={()=>setStep(2)} disabled={!rating}>
-                  Weiter →
-                </button>
-              </div>
-            </>)}
-
-            {/* Step 2 — Workflow editor */}
-            {step===2&&(<>
-              <h2 style={{margin:'0 0 5px',color:D,fontSize:19}}>2. Workflow-Analyse</h2>
-              <div className="hint">
-                <strong>Klicken</strong> Sie auf Schritte oder Pfeile, die Sie <strong>entfernen</strong> würden (werden rot markiert).<br/>
-                Weiter unten können Sie <strong>neue Schritte vorschlagen</strong>.
-              </div>
-              <WorkflowSVG mode="edit"
-                delN={delNodes} delE={delEdges}
-                onTN={toggleN} onTE={toggleE}/>
-
-              <div style={{marginTop:14,display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
-                <div style={{flex:1,minWidth:200}}>
-                  <label style={{display:'block',fontSize:12,fontWeight:700,color:D,marginBottom:5}}>
-                    Neuen Schritt vorschlagen
-                  </label>
-                  <div style={{display:'flex',gap:6}}>
-                    <input className="inp" value={newNodeInput}
-                      onChange={e=>setNewNodeInput(e.target.value)}
-                      onKeyDown={e=>e.key==='Enter'&&addNode()}
-                      placeholder="z.B. FEFLOW-Import, Monitoring-Modul…"
-                      style={{flex:1}}/>
-                    <button className="btn btn-t" onClick={addNode}>＋ Hinzufügen</button>
-                  </div>
-                </div>
-              </div>
-
-              {addedNodes.length>0&&(
-                <div style={{marginTop:10,display:'flex',flexWrap:'wrap',gap:6}}>
-                  {addedNodes.map((n,i)=>(
-                    <span key={i} className="tag"
-                      style={{background:'#E8F5E9',color:'#2E7D32',cursor:'pointer'}}
-                      title="Klicken zum Entfernen"
-                      onClick={()=>setAddedNodes(a=>a.filter((_,j)=>j!==i))}>
-                      + {n} ×
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {(delNodes.size>0||delEdges.size>0)&&(
-                <div style={{marginTop:10,fontSize:12,color:'#888'}}>
-                  Markiert zur Entfernung: {[...delNodes].map(id=>NODES.find(n=>n.id===id)?.lns[0]||id).join(', ')}
-                  {delEdges.size>0&&' + '+delEdges.size+' Verbindung(en)'}
-                  <span style={{cursor:'pointer',color:R,marginLeft:10,fontWeight:700}}
-                    onClick={()=>{setDelNodes(new Set());setDelEdges(new Set());}}>
-                    ↺ Alles zurücksetzen
-                  </span>
-                </div>
-              )}
-
-              <div style={{display:'flex',justifyContent:'space-between',marginTop:18}}>
-                <button className="btn btn-gray" onClick={()=>setStep(1)}>← Zurück</button>
-                <button className="btn btn-t" onClick={()=>setStep(3)}>Weiter →</button>
-              </div>
-            </>)}
-
-            {/* Step 3 — Recommendations */}
-            {step===3&&(<>
-              <h2 style={{margin:'0 0 5px',color:D,fontSize:19}}>3. Empfehlungen</h2>
-              <p style={{color:'#888',marginBottom:14,fontSize:13}}>
-                Welche Features oder Verbesserungen würden Sie sich wünschen?
-              </p>
-              <textarea value={recs} onChange={e=>setRecs(e.target.value)}
-                placeholder="z.B. FEFLOW-Integration, mobiler Zugriff, automatischer Bericht, neue Auswertungsmodule…"
-                style={{...inp,height:110,resize:'vertical'}}/>
-              <div style={{marginTop:12}}>
-                <label style={{display:'block',fontWeight:700,fontSize:12,color:D,marginBottom:5}}>
-                  Name / Firma <span style={{color:'#bbb',fontWeight:400}}>(optional)</span>
-                </label>
-                <input className="inp" value={name}
-                  onChange={e=>setName(e.target.value)}
-                  placeholder="Ihr Name oder Organisation"/>
-              </div>
-              {saveErr&&(
-                <div style={{color:R,fontSize:12,marginTop:10,background:'#FFEBEE',
-                  padding:'8px 12px',borderRadius:6}}>⚠️ {saveErr}</div>
-              )}
-              <div style={{display:'flex',justifyContent:'space-between',marginTop:18}}>
-                <button className="btn btn-gray" onClick={()=>setStep(2)}>← Zurück</button>
-                <button className="btn btn-t" onClick={submit} disabled={saving}>
-                  {saving?'⏳ Wird gespeichert… (bitte warten)':'✓ Absenden'}
-                </button>
-              </div>
-              {saving&&(
-                <div style={{fontSize:11,color:'#aaa',marginTop:8,textAlign:'center'}}>
-                  Übertragung läuft – bitte Seite nicht schließen…
-                </div>
-              )}
-            </>)}
-
-            {/* Done */}
-            {step==='done'&&(
-              <div style={{textAlign:'center',padding:'40px 16px'}}>
-                <div style={{fontSize:60}}>🌍</div>
-                <h2 style={{color:T,marginTop:14,fontSize:22}}>Vielen Dank!</h2>
-                <p style={{color:'#888',fontSize:14,marginTop:8}}>
-                  Ihr Feedback wurde erfolgreich gespeichert.
-                </p>
-                <p style={{color:'#bbb',fontSize:12,marginTop:4}}>
-                  Es hilft uns, den geoENERGIE Tool weiterzuentwickeln.
-                </p>
-                <div style={{marginTop:26,color:D,fontWeight:700,fontSize:13}}>
-                  Erdwärme. Aus einer Hand.
-                </div>
-              </div>
-            )}
-          </div>
-        </>)}
-
-        {/* RESULTS (admin only, after PIN) */}
-        {mode==='results'&&adminUnlocked&&(
-          <Results data={data} onClear={clearAll}
-            onReload={loadResults}
-            apiKey={cfg?.key} masterBin={cfg?.mid}/>
-        )}
-
-        {/* Non-admin trying to access results */}
-        {mode==='results'&&!isAdmin&&(
-          <div className="card" style={{textAlign:'center',padding:50}}>
-            <div style={{fontSize:48}}>🔒</div>
-            <p style={{marginTop:12,color:'#888'}}>
-              Ergebnisse sind nur für Administratoren zugänglich.
-            </p>
-          </div>
-        )}
+  return(<div style={{fontFamily:"'DM Sans',sans-serif",background:'#F2F7F6',minHeight:'100vh'}}>
+    <div style={{background:D,padding:'10px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 14px rgba(0,0,0,.25)'}}>
+      <div><div style={{fontSize:16,fontWeight:800,color:'#fff',letterSpacing:.3}}>geo<span style={{color:'#4DB6AC'}}>ENERGIE</span> Tool</div><div style={{fontSize:10,color:'rgba(255,255,255,.55)'}}>Feedback · geoENERGIE Tag 2026</div></div>
+      <div style={{display:'flex',gap:6,alignItems:'center'}}>
+        <button onClick={()=>setMode('submit')} style={{background:mode==='submit'?'rgba(255,255,255,.2)':'transparent',color:'#fff',border:'1px solid rgba(255,255,255,.28)',borderRadius:6,padding:'5px 11px',cursor:'pointer',fontSize:12,fontWeight:700}}>📝 Feedback</button>
+        {isAdmin&&<button onClick={goRes} style={{background:mode==='results'?'rgba(255,255,255,.2)':'transparent',color:'#fff',border:'1px solid rgba(255,255,255,.28)',borderRadius:6,padding:'5px 11px',cursor:'pointer',fontSize:12,fontWeight:700}}>📊 Ergebnisse</button>}
+        <button onClick={()=>setShowSetup(true)} style={{background:'transparent',color:'rgba(255,255,255,.38)',border:'none',cursor:'pointer',fontSize:18,paddingLeft:4}}>⚙</button>
       </div>
     </div>
-  );
+    <div style={{maxWidth:1080,margin:'0 auto',padding:'16px 12px'}}>
+      {mode==='submit'&&(<>
+        {step!=='done'&&(<div className="stepper">{[1,2,3].map((s,i)=><React.Fragment key={s}><div className="sdot" style={{background:s<=step?T:'#ddd'}}>{s<step?'✓':s}</div>{i<2&&<div className="sline" style={{background:s<step?T:'#ddd'}}/>}</React.Fragment>)}</div>)}
+        <div className="card">
+          {step===1&&(<>
+            <h2 style={{margin:'0 0 4px',color:D,fontSize:18}}>1. Gesamtbewertung</h2>
+            <p style={{color:'#888',marginBottom:16,fontSize:13}}>Wie bewerten Sie den geoENERGIE Tool insgesamt?</p>
+            <Stars val={rating} set={setRating}/>
+            <div style={{marginTop:16}}><label style={{display:'block',marginBottom:5,fontWeight:700,fontSize:12,color:D}}>Kommentar <span style={{color:'#bbb',fontWeight:400}}>(optional)</span></label><textarea value={comment} onChange={e=>setCmt(e.target.value)} placeholder="Was hat besonders gut gefallen? Was weniger?" style={{...inp,height:80,resize:'vertical'}}/></div>
+            <div style={{textAlign:'right',marginTop:16}}><button className="btn bt" onClick={()=>setStep(2)} disabled={!rating}>Weiter →</button></div>
+          </>)}
+          {step===2&&(<>
+            <h2 style={{margin:'0 0 4px',color:D,fontSize:18}}>2. Workflow gestalten</h2>
+            <div className="hint" style={{marginBottom:12}}>Gestalten Sie den Workflow so, wie er <strong>für Sie ideal wäre</strong>. <strong>Doppelklick</strong> = Text bearbeiten · <strong>Ziehen</strong> = verschieben · <strong>Punkt</strong> am Rand ziehen = neue Verbindung · <strong>×</strong> = löschen · Verbindung anklicken = löschen</div>
+            <WFEditor nodes={nodes} setNodes={setNodes} edges={edges} setEdges={setEdges}/>
+            <div style={{display:'flex',justifyContent:'space-between',marginTop:16}}>
+              <button className="btn bg2" onClick={()=>setStep(1)}>← Zurück</button>
+              <div style={{display:'flex',gap:8}}>
+                <button className="btn" style={{background:'#eee',color:'#555'}} onClick={()=>{if(window.confirm('Workflow zurücksetzen?')){setNodes(initNodes());setEdges(initEdges());}}}>↺ Reset</button>
+                <button className="btn bt" onClick={()=>setStep(3)}>Weiter →</button>
+              </div>
+            </div>
+          </>)}
+          {step===3&&(<>
+            <h2 style={{margin:'0 0 4px',color:D,fontSize:18}}>3. Empfehlungen</h2>
+            <p style={{color:'#888',marginBottom:14,fontSize:13}}>Welche Features oder Verbesserungen würden Sie sich wünschen?</p>
+            <textarea value={recs} onChange={e=>setRecs(e.target.value)} placeholder="z.B. FEFLOW-Integration, mobiler Zugriff, automatischer Bericht…" style={{...inp,height:100,resize:'vertical'}}/>
+            <div style={{marginTop:12}}><label style={{display:'block',fontWeight:700,fontSize:12,color:D,marginBottom:5}}>Name / Firma <span style={{color:'#bbb',fontWeight:400}}>(optional)</span></label><input className="inp" value={uname} onChange={e=>setUname(e.target.value)} placeholder="Ihr Name oder Organisation"/></div>
+            {saveErr&&<div style={{color:R,fontSize:12,marginTop:10,background:'#FFEBEE',padding:'8px 12px',borderRadius:6}}>⚠️ {saveErr}</div>}
+            {saving&&<div style={{fontSize:11,color:'#aaa',marginTop:8,textAlign:'center'}}>⏳ Wird übertragen — bitte Seite nicht schließen…</div>}
+            <div style={{display:'flex',justifyContent:'space-between',marginTop:16}}>
+              <button className="btn bg2" onClick={()=>setStep(2)}>← Zurück</button>
+              <button className="btn bt" onClick={submit} disabled={saving}>{saving?'⏳ Speichert…':'✓ Absenden'}</button>
+            </div>
+          </>)}
+          {step==='done'&&(<div style={{textAlign:'center',padding:'36px 16px'}}><div style={{fontSize:58}}>🌍</div><h2 style={{color:T,marginTop:12,fontSize:21}}>Vielen Dank!</h2><p style={{color:'#888',fontSize:14,marginTop:8}}>Ihr Feedback wurde erfolgreich gespeichert.</p><div style={{marginTop:24,color:D,fontWeight:700,fontSize:13}}>Erdwärme. Aus einer Hand.</div></div>)}
+        </div>
+      </>)}
+      {mode==='results'&&adminOk&&<Results data={data} onClear={clearAll} onReload={loadR}/>}
+      {mode==='results'&&!isAdmin&&<div className="card" style={{textAlign:'center',padding:50}}><div style={{fontSize:48}}>🔒</div><p style={{marginTop:12,color:'#888'}}>Ergebnisse sind nur für Administratoren.</p></div>}
+    </div>
+  </div>);
 }
-
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
