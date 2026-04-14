@@ -95,12 +95,12 @@ function initNodes(){return[
   {id:'proj',  x:8,  y:132,w:188,h:118,bdr:true, gl:'Projekt',                 glU:false,text:'Projektinformationen\nProjektverzeichnis\nOGIS Projekt'},
   {id:'ra',    x:210,y:88, w:218,h:192,bdr:true, gl:'Räumliche Analyse',        glU:false,text:'Definition des Bauvorhabens\n↓\nFreiflächenanalyse\n↓\nBelegung der Sonden'},
   {id:'ewsp',  x:444,y:88, w:236,h:248,bdr:true, gl:'EWS Potenzial',            glU:false,text:'Sondenlayerauswahl\n↓\nSondenparameter\nUntergrund\nLastkurve\nWärmepumpe\nSimulationseinstellungen'},
-  {id:'ewssz', x:696,y:112,w:186,h:112,bdr:false,gl:null,                       glU:false,text:'EWS Sizing\nTemperatursimulation\nPotenzialanalyse'},
+  {id:'ewssz', x:696,y:112,w:186,h:112,bdr:true, gl:null,                       glU:false,text:'EWS Sizing\nTemperatursimulation\nPotenzialanalyse'},
   {id:'ewsw',  x:898,y:88, w:155,h:192,bdr:true, gl:'EWS Wirtschaftlichkeit',   glU:true, text:'Eingaben\nSzenarien\n↓\nErgebnisse'},
   {id:'pos',   x:210,y:368,w:218,h:122,bdr:true, gl:'Potenzial Offene Systeme', glU:true, text:'Hydrogeologie\nHydrochemie\nEnergie\nSimulationsparameter'},
   {id:'ba',    x:444,y:368,w:236,h:108,bdr:true, gl:null,                       glU:false,text:'Brunnenanlage Dimensionierung\nBrunnenanlage Simulation\nMaximal Potenzial'},
   {id:'bericht',x:696,y:342,w:186,h:150,bdr:true,gl:'Bericht',                 glU:false,text:'Bausteine\nText\nLinks\nDiagrammen\nKarten'},
-  {id:'pdf',   x:898,y:386,w:105,h:68, bdr:false,gl:null,                       glU:false,text:'WORD\nPDF'},
+  {id:'pdf',   x:898,y:386,w:105,h:68, bdr:true, gl:null,                       glU:false,text:'WORD\nPDF'},
 ];}
 function initEdges(){return[
   {id:'e1', from:'proj',   to:'ra',      sty:'sd'},{id:'e2', from:'ra',    to:'ewsp',    sty:'sd'},
@@ -122,7 +122,7 @@ function ePath(a,b){
   const my=(y1+y2)/2;return`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`;
 }
 function eStroke(sty){return sty==='sg'||sty==='bg'?G:D;}
-function eWidth(sty){return sty.startsWith('b')?4:2.5;}
+function eWidth(sty){return 2;}
 function eMkr(sty){
   if(sty==='bg')return'url(#abg)';if(sty==='bd')return'url(#abd)';
   if(sty==='sg')return'url(#ag)';return'url(#ad)';
@@ -137,6 +137,8 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
   const [drag,setDrag]=useState(null);
   const [wire,setWire]=useState(null);
   const [scale,setScale]=useState(1);
+  const [pan,setPan]=useState({x:0,y:0});
+  const [panStart,setPanStart]=useState(null);
   const nm=useMemo(()=>Object.fromEntries(nodes.map(n=>[n.id,n])),[nodes]);
 
   useEffect(()=>{
@@ -144,7 +146,7 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
     u();window.addEventListener('resize',u);return()=>window.removeEventListener('resize',u);
   },[]);
 
-  function toC(cx,cy){const r=wRef.current.getBoundingClientRect();return{x:(cx-r.left)/scale,y:(cy-r.top)/scale};}
+  function toC(cx,cy){const r=wRef.current.getBoundingClientRect();return{x:(cx-r.left+pan.x)/scale,y:(cy-r.top+pan.y)/scale};}
 
   function startDrag(e,id){
     if(readOnly||editId)return;e.stopPropagation();
@@ -160,18 +162,22 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
   useEffect(()=>{
     function mm(e){
       const p=e.touches?e.touches[0]:e,{x,y}=toC(p.clientX,p.clientY);
-      if(drag)setNodes(ns=>ns.map(n=>n.id===drag.id?{...n,x:Math.max(0,Math.min(CW-n.w,x-drag.ox)),y:Math.max(0,Math.min(CH-n.h,y-drag.oy))}:n));
+      if(drag)setNodes(ns=>ns.map(n=>n.id===drag.id?{...n,x:Math.max(0,Math.min(CW*2-n.w,x-drag.ox)),y:Math.max(0,Math.min(CH*2-n.h,y-drag.oy))}:n));
       if(wire){setWire(w=>({...w,x,y}));const h=nodes.find(n=>n.id!==wire.fromId&&x>=n.x&&x<=n.x+n.w&&y>=n.y&&y<=n.y+n.h);setHov(h?h.id:null);}
+      if(panStart&&!drag&&!wire){
+        const raw={x:p.clientX,y:p.clientY};
+        setPan({x:panStart.px-(raw.x-panStart.mx),y:panStart.py-(raw.y-panStart.my)});
+      }
     }
     function mu(){
       if(wire&&hov&&!edges.some(e=>e.from===wire.fromId&&e.to===hov))
         setEdges(es=>[...es,{id:'ec'+Date.now(),from:wire.fromId,to:hov,sty:'sd'}]);
-      setDrag(null);setWire(null);setHov(null);
+      setDrag(null);setWire(null);setHov(null);setPanStart(null);
     }
     window.addEventListener('mousemove',mm);window.addEventListener('mouseup',mu);
     window.addEventListener('touchmove',mm,{passive:false});window.addEventListener('touchend',mu);
     return()=>{window.removeEventListener('mousemove',mm);window.removeEventListener('mouseup',mu);window.removeEventListener('touchmove',mm);window.removeEventListener('touchend',mu);};
-  },[drag,wire,hov,nodes,edges]);
+  },[drag,wire,hov,nodes,edges,pan,panStart]);
 
   function clickNode(e,id){
     if(readOnly)return;e.stopPropagation();
@@ -195,8 +201,8 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
     <defs>
       <marker id="ad"  markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={D}/></marker>
       <marker id="ag"  markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={G}/></marker>
-      <marker id="abd" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={D}/></marker>
-      <marker id="abg" markerWidth="16" markerHeight="10" refX="16" refY="5" orient="auto"><path d="M0,1.5 L10,1.5 L10,0 L16,5 L10,10 L10,8.5 L0,8.5 Z" fill={G}/></marker>
+      <marker id="abd" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={D}/></marker>
+      <marker id="abg" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill={G}/></marker>
       <marker id="anew" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto"><polygon points="0,0 9,3 0,6" fill="#9C27B0"/></marker>
     </defs>
   );
@@ -217,11 +223,18 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
           </span>
         </div>
       )}
-      <div className="wf-wrap" ref={wRef} style={{height:CH2,cursor:connSrc?'crosshair':'default'}}
+      <div style={{border:'2px solid #B2DFDB',borderRadius:8,background:'#FAFFFE',overflow:'hidden',position:'relative',cursor:connSrc?'crosshair':panStart?'grabbing':'grab'}}
+        ref={wRef}
+        style2={{height:340}}
+        onMouseDown={e=>{if(e.target===wRef.current||e.target.tagName==='svg'){const p=e.touches?e.touches[0]:e;setPanStart({mx:p.clientX,my:p.clientY,px:pan.x,py:pan.y});}}}
+        onTouchStart={e=>{if(e.target===wRef.current||e.target.tagName==='svg'){const p=e.touches[0];setPanStart({mx:p.clientX,my:p.clientY,px:pan.x,py:pan.y});}}}
         onClick={()=>{if(connSrc)setConnSrc(null);else setSel(null);}}>
-        <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',
-          transform:`scale(${scale})`,transformOrigin:'top left',overflow:'visible'}}
-          width={CW} height={CH}>
+        <div style={{width:'100%',height:340,overflow:'hidden',position:'relative',
+          cursor:connSrc?'crosshair':panStart?'grabbing':'default'}}>
+        <svg style={{position:'absolute',top:0,left:0,pointerEvents:'none',
+          transform:`translate(${-pan.x}px,${-pan.y}px) scale(${scale})`,
+          transformOrigin:'top left',overflow:'visible',width:CW*2,height:CH*2}}
+          width={CW*2} height={CH*2}>
           {marks}
           {edges.map(e=>{
             const fn=nm[e.from]?{...nm[e.from],...nc(nm[e.from])}:null;
@@ -244,8 +257,8 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
           const fs=10*scale,glFs=9*scale,pad=`${6*scale}px ${8*scale}px`,dbs=18*scale;
           return(
             <div key={node.id}
-              className={'wf-node'+(isSel?' sel':'')+(isCS?' csrc':'')+(isHov?' chov':'')+(node.bdr?'':' nb')}
-              style={{left:node.x*scale,top:node.y*scale,width:node.w*scale,minHeight:node.h*scale,
+              className={'wf-node'+(isSel?' sel':'')+(isCS?' csrc':'')+(isHov?' chov':'')}
+              style={{left:node.x*scale-pan.x,top:node.y*scale-pan.y,width:node.w*scale,minHeight:node.h*scale,
                 fontSize:fs,padding:pad,border:node.bdr?`1.5px solid ${D}`:'none',background:node.bdr?'#fff':'transparent'}}
               onMouseDown={e=>startDrag(e,node.id)}
               onTouchStart={e=>startDrag(e,node.id)}
@@ -290,9 +303,10 @@ function WFEditor({nodes,setNodes,edges,setEdges,readOnly=false}){
             </div>
           );
         })}
+        </div>
       </div>
       {!readOnly&&<div style={{fontSize:11,color:'#bbb',marginTop:4,fontStyle:'italic'}}>
-        💡 Doppelklick = Text bearbeiten · Punkt ziehen = Verbindung · Verbindung klicken = löschen · × = Block löschen
+        💡 Doppelklick = Text bearbeiten · Punkt ziehen = Verbindung · Verbindung klicken = löschen · × = Block löschen · Leere Fläche ziehen = Canvas verschieben
       </div>}
     </div>
   );
